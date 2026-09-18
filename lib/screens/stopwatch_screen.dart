@@ -1,7 +1,3 @@
-// =======================================================================
-// HALAMAN STOPWATCH
-// =======================================================================
-
 import 'dart:async';
 import 'package:flutter/material.dart';
 import '../data/app_data.dart';

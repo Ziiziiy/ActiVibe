@@ -1,7 +1,3 @@
-// =======================================================================
-// HALAMAN DAFTAR ANGGOTA
-// =======================================================================
-
 import 'package:flutter/material.dart';
 import '../data/app_data.dart';
 import '../widgets/shared_widgets.dart';

@@ -1,8 +1,3 @@
-// =======================================================================
-// HALAMAN BANTUAN
-// Berisi cara penggunaan aplikasi dan menu Logout (sesuai soal).
-// =======================================================================
-
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../data/app_data.dart';
@@ -63,7 +58,6 @@ class BantuanScreen extends StatelessWidget {
 
     if (konfirmasi == true) {
       await Supabase.instance.client.auth.signOut();
-      // AuthGate di main.dart otomatis mengalihkan ke LoginScreen
     }
   }
 

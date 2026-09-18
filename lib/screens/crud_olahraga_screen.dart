@@ -1,11 +1,3 @@
-// =======================================================================
-// HALAMAN CRUD SESUAI TEMA: CATATAN AKTIVITAS OLAHRAGA
-// Create, Read, Update, Delete catatan olahraga tersimpan di tabel
-// PostgreSQL Supabase (catatan_olahraga), terhubung real-time lewat
-// .stream() sehingga daftar langsung ter-update setelah tambah/ubah/
-// hapus data. Lihat SUPABASE_SETUP.md untuk perintah SQL pembuatan tabel.
-// =======================================================================
-
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../data/app_data.dart';
@@ -219,9 +211,6 @@ class _CrudOlahragaScreenState extends State<CrudOlahragaScreen> {
   }
 }
 
-// -----------------------------------------------------------------------
-// FORM TAMBAH / UBAH CATATAN (bottom sheet)
-// -----------------------------------------------------------------------
 class _FormOlahraga extends StatefulWidget {
   final String? id;
   final Map<String, dynamic>? dataAwal;

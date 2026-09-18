@@ -1,9 +1,3 @@
-// =======================================================================
-// HALAMAN KOMPUTASI SESUAI TEMA (Kesehatan & Kebugaran)
-// Berisi 2 kalkulator: BMI (Indeks Massa Tubuh) dan Kebutuhan Kalori
-// Harian (BMR/TDEE, rumus Mifflin-St Jeor).
-// =======================================================================
-
 import 'package:flutter/material.dart';
 import '../data/app_data.dart';
 import '../widgets/shared_widgets.dart';
@@ -72,9 +66,6 @@ class _TombolTab extends StatelessWidget {
   }
 }
 
-// -----------------------------------------------------------------------
-// KALKULATOR BMI
-// -----------------------------------------------------------------------
 class _KalkulatorBmi extends StatefulWidget {
   const _KalkulatorBmi();
 
@@ -192,9 +183,6 @@ class _KalkulatorBmiState extends State<_KalkulatorBmi> {
   }
 }
 
-// -----------------------------------------------------------------------
-// KALKULATOR KEBUTUHAN KALORI HARIAN (BMR/TDEE - Mifflin-St Jeor)
-// -----------------------------------------------------------------------
 class _KalkulatorKalori extends StatefulWidget {
   const _KalkulatorKalori();
 

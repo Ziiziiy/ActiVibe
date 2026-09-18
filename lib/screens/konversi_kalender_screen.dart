@@ -1,16 +1,3 @@
-// =======================================================================
-// HALAMAN KONVERSI KALENDER: WETON JAWA & SAKA BALI
-//
-// Weton = gabungan nama hari (Senin-Minggu) dengan siklus Pasaran 5 hari
-// (Legi, Pahing, Pon, Wage, Kliwon). Pasaran dihitung dari tanggal acuan
-// 17 Agustus 1945 yang dikenal luas sebagai "Jumat Legi".
-//
-// Saka Bali: sistem kalender Bali yang lengkap (wuku, pawukon) sangat
-// kompleks. Di sini hanya dihitung TAHUN Saka dengan rumus umum yang
-// lazim dipakai (Tahun Masehi - 78) sebagai pendekatan -- bukan sistem
-// pawukon penuh. Batasan ini ditulis jelas di layar & panduan.
-// =======================================================================
-
 import 'package:flutter/material.dart';
 import '../data/app_data.dart';
 import '../widgets/shared_widgets.dart';
@@ -27,7 +14,7 @@ class KonversiKalenderScreen extends StatefulWidget {
 }
 
 class _KonversiKalenderScreenState extends State<KonversiKalenderScreen> {
-  int _tabAktif = 0; // 0 = Weton, 1 = Saka Bali
+  int _tabAktif = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -79,9 +66,6 @@ class _TombolTab extends StatelessWidget {
   }
 }
 
-// -----------------------------------------------------------------------
-// KONVERSI WETON JAWA
-// -----------------------------------------------------------------------
 class _KonversiWeton extends StatefulWidget {
   const _KonversiWeton();
 

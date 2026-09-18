@@ -1,7 +1,3 @@
-// =======================================================================
-// HALAMAN UTAMA - 5 MENU VERTIKAL DI TENGAH LAYAR
-// =======================================================================
-
 import 'package:flutter/material.dart';
 import '../data/app_data.dart';
 import '../widgets/shared_widgets.dart';

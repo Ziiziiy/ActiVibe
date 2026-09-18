@@ -1,9 +1,3 @@
-// =======================================================================
-// HALAMAN KONVERSI TANGGAL
-// Berisi 2 konversi: Masehi -> Hijriah (pakai paket `hijri`), dan
-// tanggal lahir -> umur (tahun, bulan, hari, jam, menit, detik).
-// =======================================================================
-
 import 'package:flutter/material.dart';
 import 'package:hijri/hijri_calendar.dart';
 import '../data/app_data.dart';
@@ -69,9 +63,6 @@ class _TombolTab extends StatelessWidget {
   }
 }
 
-// -----------------------------------------------------------------------
-// KONVERSI MASEHI -> HIJRIAH
-// -----------------------------------------------------------------------
 class _KonversiHijriah extends StatefulWidget {
   const _KonversiHijriah();
 
@@ -160,9 +151,6 @@ class _KonversiHijriahState extends State<_KonversiHijriah> {
   }
 }
 
-// -----------------------------------------------------------------------
-// KONVERSI TANGGAL LAHIR -> UMUR
-// -----------------------------------------------------------------------
 class _KonversiUmur extends StatefulWidget {
   const _KonversiUmur();
 
