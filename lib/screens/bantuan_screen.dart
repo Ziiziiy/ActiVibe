@@ -8,24 +8,39 @@ class BantuanScreen extends StatelessWidget {
 
   static const List<Map<String, String>> _panduan = [
     {
-      'judul': 'LOGIN SYSTEM',
-      'isi': 'Status login tersimpan otomatis walau aplikasi ditutup.',
+      'judul': 'SISTEM LOGIN',
+      'isi':
+          'Masuk menggunakan akun terdaftar. Sesi login tersimpan secara otomatis walau aplikasi ditutup hingga kamu menekan tombol keluar.',
     },
     {
-      'judul': 'HEALTH COMPUTATION',
-      'isi': 'Kalkulator BMI dan TDEE (Kalori) harian berdasarkan data tubuh.',
+      'judul': 'DAFTAR ANGGOTA',
+      'isi':
+          'Menampilkan informasi profil, nama lengkap, dan NIM seluruh anggota kelompok pembuat aplikasi.',
     },
     {
-      'judul': 'EXERCISE LOG',
-      'isi': 'Kelola catatan olahraga yang tersimpan di cloud secara real-time.',
+      'judul': 'KOMPUTASI KESEHATAN',
+      'isi':
+          'Kalkulator indeks massa tubuh (BMI) dan kebutuhan kalori harian (BMR & TDEE) otomatis berbasis data profil fisik.',
     },
     {
-      'judul': 'DATE CONVERSION',
-      'isi': 'Konversi Masehi ke Hijriah dan hitung umur dengan akurat.',
+      'judul': 'CATATAN OLAHRAGA',
+      'isi':
+          'Kelola catatan latihan fisik harian (tambah, edit, dan hapus) yang tersinkronisasi langsung ke database cloud secara real-time.',
+    },
+    {
+      'judul': 'KONVERSI TANGGAL',
+      'isi':
+          'Pilih tanggal acuan untuk menghitung umur lengkap (tahun, bulan, dan hari), hari pasaran (weton Jawa), serta total selisih hari latihan.',
+    },
+    {
+      'judul': 'KONVERSI KALENDER',
+      'isi':
+          'Navigasi kalender interaktif untuk melihat padanan penanggalan Masehi ke sistem kalender Hijriah dan tahun Saka.',
     },
     {
       'judul': 'STOPWATCH',
-      'isi': 'Gunakan fitur Lap untuk mencatat split time aktivitas Anda.',
+      'isi':
+          'Pengukur durasi latihan fisik dengan fitur Lap untuk mencatat split time atau putaran tanpa menghentikan hitungan waktu.',
     },
   ];
 
@@ -35,13 +50,29 @@ class BantuanScreen extends StatelessWidget {
       builder: (context) => AlertDialog(
         backgroundColor: kSurfaceColor,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text('LOGOUT', style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1, color: Colors.white)),
-        content: const Text('Are you sure you want to sign out?', style: TextStyle(color: kTextMuted)),
+        title: const Text(
+          'KELUAR AKUN',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1,
+            color: Colors.white,
+          ),
+        ),
+        content: const Text(
+          'Apakah kamu yakin ingin keluar dari akun aplikasi?',
+          style: TextStyle(color: kTextMuted),
+        ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('CANCEL', style: TextStyle(color: kTextMuted))),
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('BATAL', style: TextStyle(color: kTextMuted)),
+          ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('YES, LOGOUT', style: TextStyle(color: kWarningColor, fontWeight: FontWeight.bold)),
+            child: const Text(
+              'YA, KELUAR',
+              style: TextStyle(color: kWarningColor, fontWeight: FontWeight.bold),
+            ),
           ),
         ],
       ),
@@ -56,14 +87,19 @@ class BantuanScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: kBackgroundColor,
-      appBar: buildAppBar('GUIDE'),
+      appBar: buildAppBar('PANDUAN'),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
           children: [
             const Text(
-              'APPLICATION USAGE',
-              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: kPrimaryColor, letterSpacing: 2),
+              'PANDUAN PENGGUNAAN',
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w800,
+                color: kPrimaryColor,
+                letterSpacing: 2,
+              ),
             ),
             const SizedBox(height: 24),
             for (final item in _panduan)
@@ -80,10 +116,22 @@ class BantuanScreen extends StatelessWidget {
                   children: [
                     Text(
                       item['judul'] ?? '',
-                      style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: Colors.white, letterSpacing: 1),
+                      style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w900,
+                        color: Colors.white,
+                        letterSpacing: 1,
+                      ),
                     ),
                     const SizedBox(height: 8),
-                    Text(item['isi'] ?? '', style: const TextStyle(fontSize: 13, color: kTextMuted, height: 1.5)),
+                    Text(
+                      item['isi'] ?? '',
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: kTextMuted,
+                        height: 1.5,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -101,7 +149,10 @@ class BantuanScreen extends StatelessWidget {
                 elevation: 0,
               ),
               icon: const Icon(Icons.logout_rounded),
-              label: const Text('SIGN OUT', style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1)),
+              label: const Text(
+                'KELUAR DARI AKUN',
+                style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1),
+              ),
             ),
           ],
         ),
