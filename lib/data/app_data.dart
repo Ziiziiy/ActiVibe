@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
 
-const Color kPrimaryColor = Color(0xFF0F766E);
-const Color kPrimaryDark = Color(0xFF0B4F4A);
-const Color kAccentColor = Color.fromARGB(255, 211, 249, 22);
-const Color kBackgroundColor = Color(0xFFF1F8F6);
-const Color kSuccessColor = Color(0xFF16A34A);
-const Color kWarningColor = Color(0xFFDC2626);
-const Color kTextMuted = Color(0xFF475569);
+// --- Palet Warna Baru (Neo-Minimalism) ---
+const Color kPrimaryColor = Color(0xFFA4FE1B); // Lime Neon
+const Color kBackgroundColor = Color(0xFF121212); // Dark Background
+const Color kSecondaryColor = Color(0xFF909090); // Grey
+const Color kSurfaceColor = Color(0xFF1E1E1E); // Lighter dark for cards
+const Color kTextMuted = Color(0xFFA0A0A0);
+
+// --- Alias untuk kompatibilitas dengan screen lain ---
+const Color kPrimaryDark = Colors.white; 
+const Color kAccentColor = kPrimaryColor;
+const Color kSuccessColor = Color(0xFF00E676); // Modern Green
+const Color kWarningColor = Color(0xFFFF5252); // Modern Red
 
 // --- Info aplikasi ---
 const String namaAplikasi = 'ActiVibe';

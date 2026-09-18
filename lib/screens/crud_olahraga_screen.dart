@@ -13,14 +13,12 @@ String _namaPengguna() {
 
 String _formatTanggal(DateTime tanggal) {
   const List<String> namaBulan = [
-    'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
-    'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des',
+    'JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN',
+    'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC',
   ];
   return '${tanggal.day} ${namaBulan[tanggal.month - 1]} ${tanggal.year}';
 }
 
-// Kolom `tanggal` bertipe `date` di Postgres, dikirim/diterima sebagai
-// teks "YYYY-MM-DD".
 DateTime _uraiTanggal(dynamic nilai) {
   if (nilai == null) return DateTime.now();
   try {
@@ -62,10 +60,12 @@ class _CrudOlahragaScreenState extends State<CrudOlahragaScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Hapus catatan?'),
-        content: const Text('Catatan olahraga ini akan dihapus permanen.'),
+        backgroundColor: kSurfaceColor,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text('DELETE LOG?', style: TextStyle(fontWeight: FontWeight.w900, color: Colors.white, letterSpacing: 1)),
+        content: const Text('This exercise record will be permanently removed.', style: TextStyle(color: kTextMuted)),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Batal')),
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('CANCEL', style: TextStyle(color: kTextMuted))),
           TextButton(
             onPressed: () async {
               Navigator.pop(context);
@@ -73,12 +73,11 @@ class _CrudOlahragaScreenState extends State<CrudOlahragaScreen> {
                 await Supabase.instance.client.from(kTabelOlahraga).delete().eq('id', id);
               } catch (e) {
                 if (mounted) {
-                  // ignore: use_build_context_synchronously
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Gagal menghapus: $e')));
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed: $e'), backgroundColor: kWarningColor));
                 }
               }
             },
-            child: const Text('Hapus', style: TextStyle(color: kWarningColor)),
+            child: const Text('DELETE', style: TextStyle(color: kWarningColor, fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -88,52 +87,46 @@ class _CrudOlahragaScreenState extends State<CrudOlahragaScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: buildAppBar('Catatan Aktivitas Olahraga'),
+      backgroundColor: kBackgroundColor,
+      appBar: buildAppBar('EXERCISE LOG'),
       floatingActionButton: FloatingActionButton(
-        backgroundColor: kAccentColor,
+        backgroundColor: kPrimaryColor,
+        elevation: 8,
         onPressed: () => _bukaFormTambahEdit(),
-        child: const Icon(Icons.add, color: Colors.white),
+        child: const Icon(Icons.add_rounded, color: Colors.black, size: 32),
       ),
       body: StreamBuilder<List<Map<String, dynamic>>>(
         stream: _streamCatatan,
         builder: (context, snapshot) {
           if (snapshot.hasError) {
             return Padding(
-              padding: const EdgeInsets.all(20),
-              child: ErrorBox(
-                message: 'Gagal memuat data: ${snapshot.error}\n\n'
-                    'Pastikan Supabase sudah di-setup (lihat SUPABASE_SETUP.md) '
-                    'dan koneksi internet aktif.',
-              ),
+              padding: const EdgeInsets.all(24),
+              child: ErrorBox(message: 'Connection Error: ${snapshot.error}'),
             );
           }
           if (!snapshot.hasData) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator(color: kPrimaryColor));
           }
 
           final List<Map<String, dynamic>> daftar = snapshot.data!;
           if (daftar.isEmpty) {
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.fitness_center, size: 48, color: Colors.grey.shade400),
-                    const SizedBox(height: 12),
-                    Text(
-                      'Belum ada catatan olahraga.\nTekan tombol + untuk menambah.',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.grey.shade500, fontSize: 13),
-                    ),
-                  ],
-                ),
+            return const Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.fitness_center_rounded, size: 64, color: Colors.white10),
+                  SizedBox(height: 16),
+                  Text(
+                    'NO RECORDS FOUND',
+                    style: TextStyle(color: kTextMuted, letterSpacing: 2, fontWeight: FontWeight.bold, fontSize: 12),
+                  ),
+                ],
               ),
             );
           }
 
           return ListView.builder(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 90),
+            padding: const EdgeInsets.fromLTRB(24, 20, 24, 100),
             itemCount: daftar.length,
             itemBuilder: (context, index) {
               final Map<String, dynamic> data = daftar[index];
@@ -142,61 +135,49 @@ class _CrudOlahragaScreenState extends State<CrudOlahragaScreen> {
               final String catatanTambahan = (data['catatan'] ?? '').toString();
 
               return Container(
-                margin: const EdgeInsets.only(bottom: 12),
-                padding: const EdgeInsets.all(14),
+                margin: const EdgeInsets.only(bottom: 16),
+                padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(14),
-                  boxShadow: [
-                    BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, 3)),
-                  ],
+                  color: kSurfaceColor,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
                 ),
                 child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
-                      width: 44,
-                      height: 44,
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(color: kSuccessColor.withValues(alpha: 0.12), shape: BoxShape.circle),
-                      child: const Icon(Icons.fitness_center, color: kSuccessColor, size: 20),
-                    ),
-                    const SizedBox(width: 12),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('${data['jenis_olahraga'] ?? '-'}', style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
-                          const SizedBox(height: 3),
                           Text(
-                            '${data['durasi_menit'] ?? 0} menit  \u2022  ${data['kalori_terbakar'] ?? 0} kkal  \u2022  ${_formatTanggal(tanggal)}',
-                            style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                            '${data['jenis_olahraga'] ?? '-'}'.toUpperCase(),
+                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: Colors.white, letterSpacing: 1),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            '${data['durasi_menit'] ?? 0} MIN  \u2022  ${data['kalori_terbakar'] ?? 0} KCAL',
+                            style: const TextStyle(fontSize: 12, color: kPrimaryColor, fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            _formatTanggal(tanggal),
+                            style: const TextStyle(fontSize: 11, color: kTextMuted, fontWeight: FontWeight.w600),
                           ),
                           if (catatanTambahan.isNotEmpty) ...[
-                            const SizedBox(height: 4),
-                            Text(catatanTambahan, style: TextStyle(fontSize: 12, color: Colors.grey.shade500, fontStyle: FontStyle.italic)),
+                            const SizedBox(height: 8),
+                            Text(catatanTambahan, style: const TextStyle(fontSize: 12, color: Colors.white54, fontStyle: FontStyle.italic)),
                           ],
-                          const SizedBox(height: 4),
-                          Text('oleh ${data['dibuat_oleh'] ?? '-'}', style: TextStyle(fontSize: 11, color: Colors.grey.shade400)),
                         ],
                       ),
                     ),
                     Column(
                       children: [
                         IconButton(
-                          icon: const Icon(Icons.edit, size: 20, color: kPrimaryColor),
+                          icon: const Icon(Icons.edit_outlined, size: 22, color: kTextMuted),
                           onPressed: () => _bukaFormTambahEdit(id: id, dataAwal: data),
-                          tooltip: 'Ubah',
-                          padding: EdgeInsets.zero,
-                          constraints: const BoxConstraints(),
                         ),
-                        const SizedBox(height: 12),
                         IconButton(
-                          icon: const Icon(Icons.delete, size: 20, color: kWarningColor),
+                          icon: const Icon(Icons.delete_outline_rounded, size: 22, color: kWarningColor),
                           onPressed: () => _konfirmasiHapus(id),
-                          tooltip: 'Hapus',
-                          padding: EdgeInsets.zero,
-                          constraints: const BoxConstraints(),
                         ),
                       ],
                     ),
@@ -259,18 +240,18 @@ class _FormOlahragaState extends State<_FormOlahraga> {
       initialDate: _tanggalDipilih,
       firstDate: DateTime(2000),
       lastDate: DateTime(2100),
+      builder: (context, child) => Theme(
+        data: Theme.of(context).copyWith(colorScheme: const ColorScheme.dark(primary: kPrimaryColor, onPrimary: Colors.black, surface: kSurfaceColor)),
+        child: child!,
+      ),
     );
     if (hasil != null) {
-      setState(() {
-        _tanggalDipilih = hasil;
-      });
+      setState(() => _tanggalDipilih = hasil);
     }
   }
 
   String _tanggalKeIso(DateTime tanggal) {
-    final String bulan = tanggal.month.toString().padLeft(2, '0');
-    final String hari = tanggal.day.toString().padLeft(2, '0');
-    return '${tanggal.year}-$bulan-$hari';
+    return '${tanggal.year}-${tanggal.month.toString().padLeft(2, '0')}-${tanggal.day.toString().padLeft(2, '0')}';
   }
 
   Future<void> _simpan() async {
@@ -279,15 +260,7 @@ class _FormOlahragaState extends State<_FormOlahraga> {
     final int? kalori = parseAngkaBulat(_kaloriController.text);
 
     if (jenis.isEmpty || durasi == null || kalori == null) {
-      setState(() {
-        _errorMessage = 'Jenis olahraga, durasi (menit), dan kalori terbakar wajib diisi dengan benar.';
-      });
-      return;
-    }
-    if (durasi <= 0 || kalori < 0) {
-      setState(() {
-        _errorMessage = 'Durasi harus lebih dari 0 dan kalori tidak boleh negatif.';
-      });
+      setState(() => _errorMessage = 'Invalid input values.');
       return;
     }
 
@@ -315,7 +288,7 @@ class _FormOlahragaState extends State<_FormOlahraga> {
       if (mounted) Navigator.pop(context);
     } catch (e) {
       setState(() {
-        _errorMessage = 'Gagal menyimpan: $e';
+        _errorMessage = 'Error: $e';
         _sedangSimpan = false;
       });
     }
@@ -327,73 +300,85 @@ class _FormOlahragaState extends State<_FormOlahraga> {
       padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
       child: Container(
         decoration: const BoxDecoration(
-          color: kBackgroundColor,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(22)),
+          color: kSurfaceColor,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
         ),
-        padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
+        padding: const EdgeInsets.fromLTRB(32, 16, 32, 40),
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             mainAxisSize: MainAxisSize.min,
             children: [
               Center(
-                child: Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.grey.shade300, borderRadius: BorderRadius.circular(4))),
+                child: Container(width: 48, height: 5, decoration: BoxDecoration(color: Colors.white12, borderRadius: BorderRadius.circular(10))),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 32),
               Text(
-                _modeEdit ? 'Ubah Catatan Olahraga' : 'Tambah Catatan Olahraga',
-                style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: kPrimaryDark),
+                _modeEdit ? 'EDIT ACTIVITY' : 'NEW ACTIVITY',
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Colors.white, letterSpacing: 2),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 32),
               TextField(
                 controller: _jenisController,
-                decoration: buildInputDecoration('Jenis olahraga', prefixIcon: const Icon(Icons.directions_run), hintText: 'Lari, renang, bersepeda, dll'),
+                style: const TextStyle(color: Colors.white),
+                decoration: buildInputDecoration('Exercise Type', prefixIcon: const Icon(Icons.directions_run_rounded)),
               ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: _durasiController,
-                keyboardType: TextInputType.number,
-                decoration: buildInputDecoration('Durasi (menit)', prefixIcon: const Icon(Icons.timer)),
+              const SizedBox(height: 20),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _durasiController,
+                      style: const TextStyle(color: Colors.white),
+                      keyboardType: TextInputType.number,
+                      decoration: buildInputDecoration('Duration (min)', prefixIcon: const Icon(Icons.timer_outlined)),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: TextField(
+                      controller: _kaloriController,
+                      style: const TextStyle(color: Colors.white),
+                      keyboardType: TextInputType.number,
+                      decoration: buildInputDecoration('Calories', prefixIcon: const Icon(Icons.local_fire_department_outlined)),
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: _kaloriController,
-                keyboardType: TextInputType.number,
-                decoration: buildInputDecoration('Kalori terbakar (kkal)', prefixIcon: const Icon(Icons.local_fire_department)),
-              ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 20),
               InkWell(
                 onTap: _pilihTanggal,
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(16),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                  decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
+                  padding: const EdgeInsets.all(18),
+                  decoration: BoxDecoration(color: kSurfaceColor, borderRadius: BorderRadius.circular(16), border: Border.all(color: Colors.white10)),
                   child: Row(
                     children: [
-                      const Icon(Icons.calendar_today, size: 18, color: kTextMuted),
-                      const SizedBox(width: 12),
-                      Text(_formatTanggal(_tanggalDipilih)),
+                      const Icon(Icons.calendar_today_rounded, size: 20, color: kPrimaryColor),
+                      const SizedBox(width: 16),
+                      Text(_formatTanggal(_tanggalDipilih), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                     ],
                   ),
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 20),
               TextField(
                 controller: _catatanController,
                 maxLines: 2,
-                decoration: buildInputDecoration('Catatan (opsional)', prefixIcon: const Icon(Icons.note)),
+                style: const TextStyle(color: Colors.white),
+                decoration: buildInputDecoration('Notes (Optional)', prefixIcon: const Icon(Icons.notes_rounded)),
               ),
               if (_errorMessage != null) ...[
-                const SizedBox(height: 12),
+                const SizedBox(height: 20),
                 ErrorBox(message: _errorMessage!),
               ],
-              const SizedBox(height: 18),
+              const SizedBox(height: 32),
               ElevatedButton(
                 onPressed: _sedangSimpan ? null : _simpan,
                 style: kPrimaryButtonStyle,
                 child: _sedangSimpan
-                    ? const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(strokeWidth: 2.4, color: Colors.white))
-                    : Text(_modeEdit ? 'Simpan Perubahan' : 'Tambah Catatan', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                    ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 3, color: Colors.black))
+                    : Text(_modeEdit ? 'SAVE CHANGES' : 'CREATE LOG'),
               ),
             ],
           ),

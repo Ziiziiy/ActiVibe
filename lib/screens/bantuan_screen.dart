@@ -8,35 +8,24 @@ class BantuanScreen extends StatelessWidget {
 
   static const List<Map<String, String>> _panduan = [
     {
-      'judul': 'Login',
-      'isi': 'Masuk menggunakan username & password akun kalian. Status login '
-          'tetap tersimpan (session) walau aplikasi ditutup, sampai kalian '
-          'menekan tombol Logout di bawah.',
+      'judul': 'LOGIN SYSTEM',
+      'isi': 'Status login tersimpan otomatis walau aplikasi ditutup.',
     },
     {
-      'judul': 'Daftar Anggota',
-      'isi': 'Menampilkan nama & NIM anggota kelompok pembuat aplikasi ini.',
+      'judul': 'HEALTH COMPUTATION',
+      'isi': 'Kalkulator BMI dan TDEE (Kalori) harian berdasarkan data tubuh.',
     },
     {
-      'judul': 'Komputasi Kesehatan',
-      'isi': 'Kalkulator BMI (Indeks Massa Tubuh) dan kebutuhan kalori harian '
-          '(BMR/TDEE). Isi data lalu tekan tombol Hitung.',
+      'judul': 'EXERCISE LOG',
+      'isi': 'Kelola catatan olahraga yang tersimpan di cloud secara real-time.',
     },
     {
-      'judul': 'Catatan Aktivitas Olahraga',
-      'isi': 'Tambah catatan olahraga lewat tombol +, ubah lewat ikon pensil, '
-          'atau hapus lewat ikon tempat sampah. Data tersimpan di database '
-          'dan langsung ter-update untuk semua anggota.',
+      'judul': 'DATE CONVERSION',
+      'isi': 'Konversi Masehi ke Hijriah dan hitung umur dengan akurat.',
     },
     {
-      'judul': 'Konversi Tanggal & Kalender',
-      'isi': 'Pilih tanggal lewat kalender, lalu tekan tombol konversi untuk '
-          'melihat tanggal Hijriah, umur, weton, atau tahun Saka.',
-    },
-    {
-      'judul': 'Stopwatch',
-      'isi': 'Tekan Mulai/Jeda untuk menjalankan stopwatch, Lap untuk mencatat '
-          'waktu tanpa menghentikan hitungan, dan Reset untuk mengulang dari 0.',
+      'judul': 'STOPWATCH',
+      'isi': 'Gunakan fitur Lap untuk mencatat split time aktivitas Anda.',
     },
   ];
 
@@ -44,13 +33,15 @@ class BantuanScreen extends StatelessWidget {
     final bool? konfirmasi = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Keluar dari akun?'),
-        content: const Text('Kalian perlu login kembali untuk masuk ke aplikasi.'),
+        backgroundColor: kSurfaceColor,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text('LOGOUT', style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1, color: Colors.white)),
+        content: const Text('Are you sure you want to sign out?', style: TextStyle(color: kTextMuted)),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Batal')),
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('CANCEL', style: TextStyle(color: kTextMuted))),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Logout', style: TextStyle(color: kWarningColor)),
+            child: const Text('YES, LOGOUT', style: TextStyle(color: kWarningColor, fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -64,30 +55,35 @@ class BantuanScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: buildAppBar('Bantuan'),
+      backgroundColor: kBackgroundColor,
+      appBar: buildAppBar('GUIDE'),
       body: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
           children: [
-            const Text('Cara Penggunaan Aplikasi', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: kPrimaryDark)),
-            const SizedBox(height: 14),
+            const Text(
+              'APPLICATION USAGE',
+              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: kPrimaryColor, letterSpacing: 2),
+            ),
+            const SizedBox(height: 24),
             for (final item in _panduan)
               Container(
-                margin: const EdgeInsets.only(bottom: 12),
-                padding: const EdgeInsets.all(14),
+                margin: const EdgeInsets.only(bottom: 16),
+                padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(14),
-                  boxShadow: [
-                    BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 8, offset: const Offset(0, 2)),
-                  ],
+                  color: kSurfaceColor,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(item['judul'] ?? '', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: kPrimaryColor)),
-                    const SizedBox(height: 6),
-                    Text(item['isi'] ?? '', style: const TextStyle(fontSize: 13, color: kTextMuted, height: 1.4)),
+                    Text(
+                      item['judul'] ?? '',
+                      style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: Colors.white, letterSpacing: 1),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(item['isi'] ?? '', style: const TextStyle(fontSize: 13, color: kTextMuted, height: 1.5)),
                   ],
                 ),
               ),
@@ -95,13 +91,17 @@ class BantuanScreen extends StatelessWidget {
             ElevatedButton.icon(
               onPressed: () => _logout(context),
               style: ElevatedButton.styleFrom(
-                backgroundColor: kWarningColor,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                backgroundColor: kWarningColor.withValues(alpha: 0.1),
+                foregroundColor: kWarningColor,
+                padding: const EdgeInsets.symmetric(vertical: 18),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  side: const BorderSide(color: kWarningColor, width: 1.5),
+                ),
+                elevation: 0,
               ),
-              icon: const Icon(Icons.logout),
-              label: const Text('Logout', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
+              icon: const Icon(Icons.logout_rounded),
+              label: const Text('SIGN OUT', style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1)),
             ),
           ],
         ),

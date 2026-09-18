@@ -25,7 +25,14 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(seedColor: kPrimaryColor),
+        brightness: Brightness.dark,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: kPrimaryColor,
+          brightness: Brightness.dark,
+          primary: kPrimaryColor,
+          surface: kSurfaceColor,
+          surfaceContainer: kSurfaceColor,
+        ),
         scaffoldBackgroundColor: kBackgroundColor,
         fontFamily: 'Roboto',
       ),

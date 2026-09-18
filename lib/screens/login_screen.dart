@@ -47,16 +47,15 @@ class _LoginScreenState extends State<LoginScreen> {
 
     try {
       await Supabase.instance.client.auth.signInWithPassword(email: email, password: password);
-      // Navigasi ditangani otomatis oleh AuthGate di main.dart lewat onAuthStateChange
     } on AuthException catch (e) {
       String pesan;
       final String pesanAsli = e.message.toLowerCase();
       if (pesanAsli.contains('invalid login credentials') || pesanAsli.contains('invalid_credentials')) {
         pesan = 'Username atau password salah.';
       } else if (pesanAsli.contains('email not confirmed')) {
-        pesan = 'Akun belum dikonfirmasi. Aktifkan "Auto Confirm User" saat membuat akun di Supabase Dashboard.';
-      } else if (pesanAsli.contains('network') || pesanAsli.contains('failed host lookup')) {
-        pesan = 'Tidak ada koneksi internet. Periksa jaringan Anda.';
+        pesan = 'Akun belum dikonfirmasi.';
+      } else if (pesanAsli.contains('network')) {
+        pesan = 'Tidak ada koneksi internet.';
       } else {
         pesan = 'Login gagal: ${e.message}';
       }
@@ -65,7 +64,7 @@ class _LoginScreenState extends State<LoginScreen> {
       });
     } catch (e) {
       setState(() {
-        _errorMessage = 'Terjadi kesalahan tak terduga: $e';
+        _errorMessage = 'Terjadi kesalahan: $e';
       });
     } finally {
       if (mounted) {
@@ -79,77 +78,143 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 32),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Container(
-                  width: 84,
-                  height: 84,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(color: kPrimaryColor, borderRadius: BorderRadius.circular(22)),
-                  child: const Icon(Icons.favorite, color: Colors.white, size: 42),
+      backgroundColor: kBackgroundColor,
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            // Top Section (Logo Focus)
+            Container(
+              height: MediaQuery.of(context).size.height * 0.45,
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
+              decoration: const BoxDecoration(
+                color: kBackgroundColor,
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // Prominent Logo instead of "LOG IN" text
+                  Image.asset(
+                    'assets/images/logo.png',
+                    height: 120,
+                    errorBuilder: (context, error, stackTrace) => const Icon(Icons.bolt_rounded, color: kPrimaryColor, size: 120),
+                  ),
+                  const SizedBox(height: 24),
+                  const Column(
+                    children: [
+                      Text(
+                        namaAplikasi,
+                        style: TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.w900, letterSpacing: 2),
+                      ),
+                      SizedBox(height: 4),
+                      Text(
+                        'HEALTH & FITNESS SYSTEM',
+                        style: TextStyle(color: kTextMuted, fontSize: 12, letterSpacing: 3, fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+
+            // Bottom Section (Dark Surface Container)
+            Container(
+              width: double.infinity,
+              constraints: BoxConstraints(minHeight: MediaQuery.of(context).size.height * 0.55),
+              padding: const EdgeInsets.fromLTRB(32, 56, 32, 40),
+              decoration: const BoxDecoration(
+                color: kSurfaceColor,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(50),
+                  topRight: Radius.circular(50),
                 ),
-                const SizedBox(height: 24),
-                const Text(
-                  namaAplikasi,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: kPrimaryDark),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  'Aplikasi $temaKelompok',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
-                ),
-                const SizedBox(height: 36),
-                TextField(
-                  controller: _usernameController,
-                  enabled: !_sedangProses,
-                  decoration: buildInputDecoration('Username', prefixIcon: const Icon(Icons.person)),
-                ),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: _passwordController,
-                  obscureText: _obscurePassword,
-                  enabled: !_sedangProses,
-                  onSubmitted: (_) => _login(),
-                  decoration: buildInputDecoration(
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Username',
+                    style: TextStyle(color: kPrimaryColor, fontWeight: FontWeight.w900, fontSize: 16, letterSpacing: 1),
+                  ),
+                  const SizedBox(height: 12),
+                  _buildReferenceInput(
+                    controller: _usernameController,
+                    hint: 'Enter your username',
+                    enabled: !_sedangProses,
+                  ),
+                  const SizedBox(height: 24),
+                  const Text(
                     'Password',
-                    prefixIcon: const Icon(Icons.lock),
-                    suffixIcon: IconButton(
-                      icon: Icon(_obscurePassword ? Icons.visibility_off : Icons.visibility),
-                      onPressed: () {
-                        setState(() {
-                          _obscurePassword = !_obscurePassword;
-                        });
-                      },
+                    style: TextStyle(color: kPrimaryColor, fontWeight: FontWeight.w900, fontSize: 16, letterSpacing: 1),
+                  ),
+                  const SizedBox(height: 12),
+                  _buildReferenceInput(
+                    controller: _passwordController,
+                    hint: 'Enter your password',
+                    obscure: _obscurePassword,
+                    enabled: !_sedangProses,
+                  ),
+                  if (_errorMessage != null) ...[
+                    const SizedBox(height: 24),
+                    ErrorBox(message: _errorMessage!),
+                  ],
+                  const SizedBox(height: 48),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: _sedangProses ? null : _login,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: kPrimaryColor,
+                        foregroundColor: Colors.black,
+                        padding: const EdgeInsets.symmetric(vertical: 20),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                        elevation: 0,
+                      ),
+                      child: _sedangProses
+                          ? const SizedBox(
+                              width: 24,
+                              height: 24,
+                              child: CircularProgressIndicator(strokeWidth: 3, color: Colors.black),
+                            )
+                          : const Text(
+                              'SIGN IN',
+                              style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, letterSpacing: 2),
+                            ),
                     ),
                   ),
-                ),
-                if (_errorMessage != null) ...[
-                  const SizedBox(height: 14),
-                  ErrorBox(message: _errorMessage!),
                 ],
-                const SizedBox(height: 24),
-                ElevatedButton(
-                  onPressed: _sedangProses ? null : _login,
-                  style: kPrimaryButtonStyle,
-                  child: _sedangProses
-                      ? const SizedBox(
-                          width: 22,
-                          height: 22,
-                          child: CircularProgressIndicator(strokeWidth: 2.4, color: Colors.white),
-                        )
-                      : const Text('Masuk', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
-                ),
-              ],
+              ),
             ),
-          ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildReferenceInput({
+    required TextEditingController controller,
+    required String hint,
+    bool obscure = false,
+    bool enabled = true,
+  }) {
+    return TextField(
+      controller: controller,
+      obscureText: obscure,
+      enabled: enabled,
+      style: const TextStyle(color: Colors.white),
+      decoration: InputDecoration(
+        hintText: hint,
+        hintStyle: const TextStyle(color: Colors.white24, fontWeight: FontWeight.bold, fontSize: 14),
+        filled: true,
+        fillColor: kBackgroundColor,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(20),
+          borderSide: const BorderSide(color: Colors.white10, width: 1.5),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(20),
+          borderSide: const BorderSide(color: kPrimaryColor, width: 2),
         ),
       ),
     );

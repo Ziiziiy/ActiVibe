@@ -16,7 +16,8 @@ class _KonversiTanggalScreenState extends State<KonversiTanggalScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: buildAppBar('Konversi Tanggal'),
+      backgroundColor: kBackgroundColor,
+      appBar: buildAppBar('CONVERSION'),
       body: SafeArea(
         child: Column(
           children: [
@@ -24,9 +25,9 @@ class _KonversiTanggalScreenState extends State<KonversiTanggalScreen> {
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
               child: Row(
                 children: [
-                  Expanded(child: _TombolTab(label: 'Masehi -> Hijriah', aktif: _tabAktif == 0, onTap: () => setState(() => _tabAktif = 0))),
-                  const SizedBox(width: 10),
-                  Expanded(child: _TombolTab(label: 'Umur', aktif: _tabAktif == 1, onTap: () => setState(() => _tabAktif = 1))),
+                  Expanded(child: _TombolTab(label: 'HIJRIAH', aktif: _tabAktif == 0, onTap: () => setState(() => _tabAktif = 0))),
+                  const SizedBox(width: 12),
+                  Expanded(child: _TombolTab(label: 'AGE', aktif: _tabAktif == 1, onTap: () => setState(() => _tabAktif = 1))),
                 ],
               ),
             ),
@@ -49,14 +50,24 @@ class _TombolTab extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(10),
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        decoration: BoxDecoration(color: aktif ? kPrimaryColor : Colors.white, borderRadius: BorderRadius.circular(10)),
+      borderRadius: BorderRadius.circular(16),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(vertical: 14),
+        decoration: BoxDecoration(
+          color: aktif ? kPrimaryColor : kSurfaceColor,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: aktif ? kPrimaryColor : Colors.white10),
+        ),
         child: Text(
           label,
           textAlign: TextAlign.center,
-          style: TextStyle(color: aktif ? Colors.white : kTextMuted, fontWeight: FontWeight.w600, fontSize: 12),
+          style: TextStyle(
+            color: aktif ? Colors.black : kTextMuted,
+            fontWeight: FontWeight.w900,
+            fontSize: 12,
+            letterSpacing: 1.5,
+          ),
         ),
       ),
     );
@@ -80,6 +91,14 @@ class _KonversiHijriahState extends State<_KonversiHijriah> {
       initialDate: _tanggalDipilih,
       firstDate: DateTime(1900),
       lastDate: DateTime(2100),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.dark(primary: kPrimaryColor, onPrimary: Colors.black, surface: kSurfaceColor),
+          ),
+          child: child!,
+        );
+      },
     );
     if (hasil != null) {
       setState(() {
@@ -99,47 +118,59 @@ class _KonversiHijriahState extends State<_KonversiHijriah> {
   Widget build(BuildContext context) {
     final HijriCalendar? hijriah = _hasilHijriah;
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Text('Pilih tanggal Masehi', style: TextStyle(fontSize: 13, color: kTextMuted)),
+          const Text('GREGORIAN DATE', style: TextStyle(fontSize: 11, color: kTextMuted, fontWeight: FontWeight.bold, letterSpacing: 1)),
           const SizedBox(height: 8),
           InkWell(
             onTap: _pilihTanggal,
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(16),
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(color: kSurfaceColor, borderRadius: BorderRadius.circular(16), border: Border.all(color: Colors.white10)),
               child: Row(
                 children: [
-                  const Icon(Icons.calendar_today, size: 18, color: kTextMuted),
-                  const SizedBox(width: 12),
-                  Text('${_tanggalDipilih.day}/${_tanggalDipilih.month}/${_tanggalDipilih.year}'),
+                  const Icon(Icons.calendar_today_rounded, size: 20, color: kPrimaryColor),
+                  const SizedBox(width: 16),
+                  Text(
+                    '${_tanggalDipilih.day}/${_tanggalDipilih.month}/${_tanggalDipilih.year}',
+                    style: const TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.w600),
+                  ),
                 ],
               ),
             ),
           ),
-          const SizedBox(height: 18),
+          const SizedBox(height: 32),
           ElevatedButton(
             onPressed: _konversi,
             style: kPrimaryButtonStyle,
-            child: const Text('Konversi ke Hijriah', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+            child: const Text('CONVERT TO HIJRIAH'),
           ),
           if (hijriah != null) ...[
-            const SizedBox(height: 24),
+            const SizedBox(height: 40),
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 12),
-              decoration: BoxDecoration(color: kPrimaryColor, borderRadius: BorderRadius.circular(18)),
+              padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 20),
+              decoration: BoxDecoration(
+                color: kSurfaceColor,
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(color: kPrimaryColor.withValues(alpha: 0.3)),
+              ),
               child: Column(
                 children: [
-                  const Text('TANGGAL HIJRIAH', style: TextStyle(fontSize: 12, color: Colors.white70, letterSpacing: 1.2)),
-                  const SizedBox(height: 8),
+                  const Text('HIJRI DATE', style: TextStyle(fontSize: 12, color: kTextMuted, letterSpacing: 2, fontWeight: FontWeight.w700)),
+                  const SizedBox(height: 16),
                   Text(
-                    '${hijriah.hDay} ${hijriah.getLongMonthName()} ${hijriah.hYear} H',
+                    '${hijriah.hDay} ${hijriah.getLongMonthName()}',
                     textAlign: TextAlign.center,
-                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+                    style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: kPrimaryColor),
+                  ),
+                  Text(
+                    '${hijriah.hYear} AH',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Colors.white),
                   ),
                 ],
               ),
@@ -168,6 +199,14 @@ class _KonversiUmurState extends State<_KonversiUmur> {
       initialDate: _tanggalLahir,
       firstDate: DateTime(1900),
       lastDate: DateTime.now(),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.dark(primary: kPrimaryColor, onPrimary: Colors.black, surface: kSurfaceColor),
+          ),
+          child: child!,
+        );
+      },
     );
     if (hasil != null) {
       setState(() {
@@ -202,9 +241,6 @@ class _KonversiUmurState extends State<_KonversiUmur> {
         'bulan': bulan,
         'hari': hari,
         'totalHari': selisih.inDays,
-        'totalJam': selisih.inHours,
-        'totalMenit': selisih.inMinutes,
-        'totalDetik': selisih.inSeconds,
       };
     });
   }
@@ -213,50 +249,60 @@ class _KonversiUmurState extends State<_KonversiUmur> {
   Widget build(BuildContext context) {
     final Map<String, int>? umur = _hasilUmur;
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Text('Pilih tanggal lahir', style: TextStyle(fontSize: 13, color: kTextMuted)),
+          const Text('BIRTH DATE', style: TextStyle(fontSize: 11, color: kTextMuted, fontWeight: FontWeight.bold, letterSpacing: 1)),
           const SizedBox(height: 8),
           InkWell(
             onTap: _pilihTanggal,
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(16),
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(color: kSurfaceColor, borderRadius: BorderRadius.circular(16), border: Border.all(color: Colors.white10)),
               child: Row(
                 children: [
-                  const Icon(Icons.cake, size: 18, color: kTextMuted),
-                  const SizedBox(width: 12),
-                  Text('${_tanggalLahir.day}/${_tanggalLahir.month}/${_tanggalLahir.year}'),
+                  const Icon(Icons.cake_rounded, size: 20, color: kPrimaryColor),
+                  const SizedBox(width: 16),
+                  Text(
+                    '${_tanggalLahir.day}/${_tanggalLahir.month}/${_tanggalLahir.year}',
+                    style: const TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.w600),
+                  ),
                 ],
               ),
             ),
           ),
-          const SizedBox(height: 18),
+          const SizedBox(height: 32),
           ElevatedButton(
             onPressed: _hitungUmur,
             style: kPrimaryButtonStyle,
-            child: const Text('Hitung Umur', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+            child: const Text('CALCULATE AGE'),
           ),
           if (umur != null) ...[
-            const SizedBox(height: 24),
+            const SizedBox(height: 40),
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 20),
-              decoration: BoxDecoration(color: kPrimaryColor, borderRadius: BorderRadius.circular(18)),
-              child: Text(
-                '${umur['tahun']} tahun ${umur['bulan']} bulan ${umur['hari']} hari',
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+              padding: const EdgeInsets.symmetric(vertical: 32),
+              decoration: BoxDecoration(
+                color: kSurfaceColor,
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(color: kPrimaryColor.withValues(alpha: 0.3)),
+              ),
+              child: Column(
+                children: [
+                  const Text('CURRENT AGE', style: TextStyle(fontSize: 12, color: kTextMuted, letterSpacing: 2, fontWeight: FontWeight.w700)),
+                  const SizedBox(height: 12),
+                  Text(
+                    '${umur['tahun']}Y ${umur['bulan']}M ${umur['hari']}D',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: kPrimaryColor),
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 14),
-            InfoCard(label: 'Total hari', value: '${umur['totalHari']} hari'),
-            InfoCard(label: 'Total jam', value: '${umur['totalJam']} jam'),
-            InfoCard(label: 'Total menit', value: '${umur['totalMenit']} menit'),
-            InfoCard(label: 'Total detik', value: '${umur['totalDetik']} detik'),
+            const SizedBox(height: 20),
+            InfoCard(label: 'TOTAL DAYS LIVED', value: '${umur['totalHari']} DAYS'),
           ],
         ],
       ),

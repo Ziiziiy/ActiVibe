@@ -15,65 +15,68 @@ class HomeMenuScreen extends StatelessWidget {
     return Scaffold(
       appBar: buildAppBar(namaAplikasi),
       body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const Text(
-                  'Aplikasi $temaKelompok',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 13, color: kTextMuted),
-                ),
-                const SizedBox(height: 20),
-                VerticalMenuItem(
-                  icon: Icons.groups,
-                  label: 'Daftar Anggota',
-                  subtitle: 'Anggota kelompok pembuat aplikasi',
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const Text(
+                'APLIKASI $temaKelompok',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 2.0,
                   color: kPrimaryColor,
-                  onTap: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => const DaftarAnggotaScreen()));
-                  },
                 ),
-                VerticalMenuItem(
-                  icon: Icons.monitor_weight,
-                  label: 'Komputasi Kesehatan',
-                  subtitle: 'Kalkulator BMI & kebutuhan kalori harian',
-                  color: kAccentColor,
-                  onTap: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => const KomputasiScreen()));
-                  },
-                ),
-                VerticalMenuItem(
-                  icon: Icons.fitness_center,
-                  label: 'Catatan Aktivitas Olahraga',
-                  subtitle: 'Tambah, lihat, ubah, hapus catatan olahraga',
-                  color: kSuccessColor,
-                  onTap: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => const CrudOlahragaScreen()));
-                  },
-                ),
-                VerticalMenuItem(
-                  icon: Icons.calendar_month,
-                  label: 'Konversi Tanggal',
-                  subtitle: 'Tanggal Hijriah & umur dari tanggal lahir',
-                  color: kPrimaryDark,
-                  onTap: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => const KonversiTanggalScreen()));
-                  },
-                ),
-                VerticalMenuItem(
-                  icon: Icons.brightness_5,
-                  label: 'Konversi Kalender',
-                  subtitle: 'Kalender Weton Jawa & Saka Bali',
-                  color: kWarningColor,
-                  onTap: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => const KonversiKalenderScreen()));
-                  },
-                ),
-              ],
-            ),
+              ),
+              const SizedBox(height: 32),
+              VerticalMenuItem(
+                icon: Icons.groups_rounded,
+                label: 'Daftar Anggota',
+                subtitle: 'Tim pengembang ActiVibe',
+                color: kPrimaryColor,
+                onTap: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const DaftarAnggotaScreen()));
+                },
+              ),
+              VerticalMenuItem(
+                icon: Icons.monitor_weight_rounded,
+                label: 'Komputasi Kesehatan',
+                subtitle: 'BMI & Kebutuhan Kalori',
+                color: kPrimaryColor,
+                onTap: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const KomputasiScreen()));
+                },
+              ),
+              VerticalMenuItem(
+                icon: Icons.fitness_center_rounded,
+                label: 'Catatan Olahraga',
+                subtitle: 'Kelola aktivitas harian',
+                color: kPrimaryColor,
+                onTap: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const CrudOlahragaScreen()));
+                },
+              ),
+              VerticalMenuItem(
+                icon: Icons.calendar_today_rounded,
+                label: 'Konversi Tanggal',
+                subtitle: 'Hijriah & Hitung Umur',
+                color: kPrimaryColor,
+                onTap: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const KonversiTanggalScreen()));
+                },
+              ),
+              VerticalMenuItem(
+                icon: Icons.auto_awesome_mosaic_rounded,
+                label: 'Konversi Kalender',
+                subtitle: 'Weton Jawa & Saka Bali',
+                color: kPrimaryColor,
+                onTap: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const KonversiKalenderScreen()));
+                },
+              ),
+            ],
           ),
         ),
       ),

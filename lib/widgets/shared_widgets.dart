@@ -3,8 +3,12 @@ import '../data/app_data.dart';
 
 AppBar buildAppBar(String title, {List<Widget>? actions}) {
   return AppBar(
-    title: Text(title),
-    backgroundColor: kPrimaryColor,
+    title: Text(
+      title,
+      style: const TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1.2, color: Colors.white),
+    ),
+    centerTitle: true,
+    backgroundColor: kBackgroundColor,
     foregroundColor: Colors.white,
     elevation: 0,
     actions: actions,
@@ -12,32 +16,35 @@ AppBar buildAppBar(String title, {List<Widget>? actions}) {
 }
 
 final ButtonStyle kPrimaryButtonStyle = ElevatedButton.styleFrom(
-  backgroundColor: kAccentColor,
-  foregroundColor: Colors.white,
-  padding: const EdgeInsets.symmetric(vertical: 16),
+  backgroundColor: kPrimaryColor,
+  foregroundColor: Colors.black,
+  padding: const EdgeInsets.symmetric(vertical: 18),
   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
   elevation: 0,
+  textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
 );
 
 InputDecoration buildInputDecoration(String label, {Widget? prefixIcon, Widget? suffixIcon, String? hintText}) {
   return InputDecoration(
     labelText: label,
+    labelStyle: const TextStyle(color: kTextMuted),
     hintText: hintText,
-    prefixIcon: prefixIcon,
+    hintStyle: const TextStyle(color: Colors.white24),
+    prefixIcon: prefixIcon != null ? IconTheme(data: const IconThemeData(color: kPrimaryColor), child: prefixIcon) : null,
     suffixIcon: suffixIcon,
     filled: true,
-    fillColor: Colors.white,
+    fillColor: kSurfaceColor,
     border: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(16),
       borderSide: BorderSide.none,
     ),
     enabledBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(12),
-      borderSide: BorderSide.none,
+      borderRadius: BorderRadius.circular(16),
+      borderSide: const BorderSide(color: Colors.white10, width: 1),
     ),
     focusedBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(12),
-      borderSide: const BorderSide(color: kPrimaryColor, width: 1.6),
+      borderRadius: BorderRadius.circular(16),
+      borderSide: const BorderSide(color: kPrimaryColor, width: 1.5),
     ),
   );
 }
@@ -52,13 +59,12 @@ class ErrorBox extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(color: Colors.red.shade50, borderRadius: BorderRadius.circular(10)),
-      child: Text(message, style: const TextStyle(color: Colors.red, fontSize: 13)),
+      decoration: BoxDecoration(color: Colors.red.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12)),
+      child: Text(message, style: const TextStyle(color: Colors.redAccent, fontSize: 13)),
     );
   }
 }
 
-// Kartu untuk info/hasil (dipakai di komputasi, konversi, dsb)
 class InfoCard extends StatelessWidget {
   final String label;
   final String value;
@@ -70,28 +76,25 @@ class InfoCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 8, offset: const Offset(0, 2)),
-        ],
+        color: kSurfaceColor,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: const TextStyle(fontSize: 13, color: kTextMuted)),
-          const SizedBox(height: 4),
-          Text(value, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: color ?? kPrimaryDark)),
+          Text(label, style: const TextStyle(fontSize: 12, color: kTextMuted, fontWeight: FontWeight.w600, letterSpacing: 0.5)),
+          const SizedBox(height: 8),
+          Text(value, style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: color ?? kPrimaryColor)),
         ],
       ),
     );
   }
 }
 
-// Item menu vertikal pada Halaman Utama (sesuai soal: "5 menu di tengah layar secara vertikal")
 class VerticalMenuItem extends StatelessWidget {
   final IconData icon;
   final String label;
@@ -110,42 +113,44 @@ class VerticalMenuItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        width: double.infinity,
-        margin: const EdgeInsets.only(bottom: 14),
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, 3)),
-          ],
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 50,
-              height: 50,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(color: color.withValues(alpha: 0.12), shape: BoxShape.circle),
-              child: Icon(icon, color: color, size: 24),
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(label, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
-                  const SizedBox(height: 2),
-                  Text(subtitle, style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
-                ],
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: kSurfaceColor,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 54,
+                height: 54,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: kPrimaryColor.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Icon(icon, color: kPrimaryColor, size: 26),
               ),
-            ),
-            Icon(Icons.chevron_right, color: Colors.grey.shade400),
-          ],
+              const SizedBox(width: 18),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(label, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
+                    const SizedBox(height: 4),
+                    Text(subtitle, style: const TextStyle(fontSize: 13, color: kTextMuted)),
+                  ],
+                ),
+              ),
+              const Icon(Icons.arrow_forward_ios, color: Colors.white24, size: 16),
+            ],
+          ),
         ),
       ),
     );

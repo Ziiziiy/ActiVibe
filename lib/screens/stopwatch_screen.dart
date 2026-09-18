@@ -54,7 +54,7 @@ class _StopwatchScreenState extends State<StopwatchScreen> {
     final String jam = duaDigit(d.inHours);
     final String menit = duaDigit(d.inMinutes.remainder(60));
     final String detik = duaDigit(d.inSeconds.remainder(60));
-    final String ms = tigaDigit(d.inMilliseconds.remainder(1000));
+    final String ms = tigaDigit(d.inMilliseconds.remainder(1000) ~/ 10);
     return '$jam:$menit:$detik.$ms';
   }
 
@@ -63,79 +63,119 @@ class _StopwatchScreenState extends State<StopwatchScreen> {
     final bool berjalan = _stopwatch.isRunning;
 
     return Scaffold(
-      appBar: buildAppBar('Stopwatch'),
+      backgroundColor: kBackgroundColor,
+      appBar: buildAppBar('STOPWATCH'),
       body: SafeArea(
         child: Column(
           children: [
-            const SizedBox(height: 40),
-            Text(
-              _formatDurasi(_stopwatch.elapsed),
-              style: const TextStyle(fontSize: 48, fontWeight: FontWeight.bold, color: kPrimaryDark, fontFeatures: [FontFeature.tabularFigures()]),
+            const SizedBox(height: 60),
+            // Minimalist Timer Display
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 20),
+              child: Text(
+                _formatDurasi(_stopwatch.elapsed),
+                style: const TextStyle(
+                  fontSize: 52,
+                  fontWeight: FontWeight.w900,
+                  color: kPrimaryColor,
+                  letterSpacing: 2,
+                  fontFeatures: [FontFeature.tabularFigures()],
+                ),
+              ),
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: 48),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                ElevatedButton(
-                  onPressed: _mulaiAtauJeda,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: berjalan ? kWarningColor : kSuccessColor,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 16),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
-                  child: Text(berjalan ? 'Jeda' : 'Mulai', style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
+                // Start/Pause Button
+                _ControlCircleButton(
+                  onTap: _mulaiAtauJeda,
+                  icon: berjalan ? Icons.pause_rounded : Icons.play_arrow_rounded,
+                  color: berjalan ? kWarningColor : kPrimaryColor,
+                  isFilled: true,
                 ),
-                const SizedBox(width: 14),
-                OutlinedButton(
-                  onPressed: berjalan ? _catatLap : null,
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: kPrimaryColor,
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
-                  child: const Text('Lap', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
+                const SizedBox(width: 24),
+                // Lap Button
+                _ControlCircleButton(
+                  onTap: berjalan ? _catatLap : null,
+                  icon: Icons.flag_rounded,
+                  color: Colors.white,
+                  isFilled: false,
                 ),
-                const SizedBox(width: 14),
-                OutlinedButton(
-                  onPressed: _reset,
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: kTextMuted,
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
-                  child: const Text('Reset', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
+                const SizedBox(width: 24),
+                // Reset Button
+                _ControlCircleButton(
+                  onTap: _reset,
+                  icon: Icons.refresh_rounded,
+                  color: kTextMuted,
+                  isFilled: false,
                 ),
               ],
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 48),
             Expanded(
-              child: _daftarLap.isEmpty
-                  ? Center(
-                      child: Text('Belum ada catatan lap', style: TextStyle(color: Colors.grey.shade400, fontSize: 13)),
-                    )
-                  : ListView.builder(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      itemCount: _daftarLap.length,
-                      itemBuilder: (context, index) {
-                        final int nomorLap = _daftarLap.length - index;
-                        return Container(
-                          margin: const EdgeInsets.only(bottom: 8),
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10)),
-                          child: Row(
+              child: Container(
+                decoration: const BoxDecoration(
+                  color: kSurfaceColor,
+                  borderRadius: BorderRadius.only(topLeft: Radius.circular(32), topRight: Radius.circular(32)),
+                ),
+                child: _daftarLap.isEmpty
+                    ? const Center(
+                        child: Text('NO LAPS RECORDED', style: TextStyle(color: kTextMuted, letterSpacing: 1, fontSize: 11, fontWeight: FontWeight.bold)),
+                      )
+                    : ListView.separated(
+                        padding: const EdgeInsets.all(32),
+                        itemCount: _daftarLap.length,
+                        separatorBuilder: (context, index) => const Divider(color: Colors.white10, height: 32),
+                        itemBuilder: (context, index) {
+                          final int nomorLap = _daftarLap.length - index;
+                          return Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text('Lap $nomorLap', style: const TextStyle(fontSize: 13, color: kTextMuted)),
-                              Text(_formatDurasi(_daftarLap[index]), style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                              Text(
+                                'LAP ${nomorLap.toString().padLeft(2, '0')}',
+                                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: kTextMuted, letterSpacing: 1),
+                              ),
+                              Text(
+                                _formatDurasi(_daftarLap[index]),
+                                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white, letterSpacing: 1),
+                              ),
                             ],
-                          ),
-                        );
-                      },
-                    ),
+                          );
+                        },
+                      ),
+              ),
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _ControlCircleButton extends StatelessWidget {
+  final VoidCallback? onTap;
+  final IconData icon;
+  final Color color;
+  final bool isFilled;
+
+  const _ControlCircleButton({this.onTap, required this.icon, required this.color, required this.isFilled});
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(50),
+      child: Container(
+        width: 64,
+        height: 64,
+        decoration: BoxDecoration(
+          color: isFilled ? color : Colors.transparent,
+          shape: BoxShape.circle,
+          border: isFilled ? null : Border.all(color: color.withValues(alpha: 0.3), width: 2),
+          boxShadow: isFilled ? [BoxShadow(color: color.withValues(alpha: 0.2), blurRadius: 15, offset: const Offset(0, 5))] : null,
+        ),
+        child: Icon(icon, color: isFilled ? Colors.black : color, size: 30),
       ),
     );
   }

@@ -16,7 +16,8 @@ class _KomputasiScreenState extends State<KomputasiScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: buildAppBar('Komputasi Kesehatan'),
+      backgroundColor: kBackgroundColor,
+      appBar: buildAppBar('KOMPUTASI'),
       body: SafeArea(
         child: Column(
           children: [
@@ -25,8 +26,8 @@ class _KomputasiScreenState extends State<KomputasiScreen> {
               child: Row(
                 children: [
                   Expanded(child: _TombolTab(label: 'BMI', aktif: _tabAktif == 0, onTap: () => setState(() => _tabAktif = 0))),
-                  const SizedBox(width: 10),
-                  Expanded(child: _TombolTab(label: 'Kalori Harian', aktif: _tabAktif == 1, onTap: () => setState(() => _tabAktif = 1))),
+                  const SizedBox(width: 12),
+                  Expanded(child: _TombolTab(label: 'KALORI', aktif: _tabAktif == 1, onTap: () => setState(() => _tabAktif = 1))),
                 ],
               ),
             ),
@@ -49,17 +50,24 @@ class _TombolTab extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(10),
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12),
+      borderRadius: BorderRadius.circular(16),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(vertical: 14),
         decoration: BoxDecoration(
-          color: aktif ? kPrimaryColor : Colors.white,
-          borderRadius: BorderRadius.circular(10),
+          color: aktif ? kPrimaryColor : kSurfaceColor,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: aktif ? kPrimaryColor : Colors.white10),
         ),
         child: Text(
           label,
           textAlign: TextAlign.center,
-          style: TextStyle(color: aktif ? Colors.white : kTextMuted, fontWeight: FontWeight.w600, fontSize: 13),
+          style: TextStyle(
+            color: aktif ? Colors.black : kTextMuted,
+            fontWeight: FontWeight.w900,
+            fontSize: 12,
+            letterSpacing: 1.5,
+          ),
         ),
       ),
     );
@@ -87,17 +95,10 @@ class _KalkulatorBmiState extends State<_KalkulatorBmi> {
   }
 
   String _kategoriBmi(double bmi) {
-    if (bmi < 18.5) return 'Kurus (Underweight)';
-    if (bmi < 25) return 'Normal';
-    if (bmi < 30) return 'Gemuk (Overweight)';
-    return 'Obesitas';
-  }
-
-  Color _warnaKategori(double bmi) {
-    if (bmi < 18.5) return kAccentColor;
-    if (bmi < 25) return kSuccessColor;
-    if (bmi < 30) return kAccentColor;
-    return kWarningColor;
+    if (bmi < 18.5) return 'UNDERWEIGHT';
+    if (bmi < 25) return 'NORMAL';
+    if (bmi < 30) return 'OVERWEIGHT';
+    return 'OBESITAS';
   }
 
   void _hitungBmi() {
@@ -106,14 +107,14 @@ class _KalkulatorBmiState extends State<_KalkulatorBmi> {
 
     if (berat == null || tinggiCm == null) {
       setState(() {
-        _errorMessage = 'Isi berat (kg) dan tinggi (cm) dengan angka yang valid.';
+        _errorMessage = 'Input tidak valid.';
         _bmi = null;
       });
       return;
     }
     if (berat <= 0 || tinggiCm <= 0) {
       setState(() {
-        _errorMessage = 'Berat dan tinggi harus lebih dari 0.';
+        _errorMessage = 'Nilai harus > 0.';
         _bmi = null;
       });
       return;
@@ -130,51 +131,52 @@ class _KalkulatorBmiState extends State<_KalkulatorBmi> {
   Widget build(BuildContext context) {
     final double? bmi = _bmi;
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           TextField(
             controller: _beratController,
+            style: const TextStyle(color: Colors.white),
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            decoration: buildInputDecoration('Berat badan (kg)', prefixIcon: const Icon(Icons.monitor_weight)),
+            decoration: buildInputDecoration('Berat (kg)', prefixIcon: const Icon(Icons.monitor_weight_outlined)),
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 20),
           TextField(
             controller: _tinggiController,
+            style: const TextStyle(color: Colors.white),
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            decoration: buildInputDecoration('Tinggi badan (cm)', prefixIcon: const Icon(Icons.height)),
+            decoration: buildInputDecoration('Tinggi (cm)', prefixIcon: const Icon(Icons.height_rounded)),
           ),
           if (_errorMessage != null) ...[
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
             ErrorBox(message: _errorMessage!),
           ],
-          const SizedBox(height: 18),
+          const SizedBox(height: 32),
           ElevatedButton(
             onPressed: _hitungBmi,
             style: kPrimaryButtonStyle,
-            child: const Text('Hitung BMI', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+            child: const Text('CALCULATE BMI'),
           ),
           if (bmi != null) ...[
-            const SizedBox(height: 24),
+            const SizedBox(height: 40),
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 24),
-              decoration: BoxDecoration(color: _warnaKategori(bmi).withValues(alpha: 0.1), borderRadius: BorderRadius.circular(18)),
+              padding: const EdgeInsets.symmetric(vertical: 32),
+              decoration: BoxDecoration(
+                color: kSurfaceColor,
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(color: kPrimaryColor.withValues(alpha: 0.3)),
+              ),
               child: Column(
                 children: [
-                  const Text('BMI ANDA', style: TextStyle(fontSize: 12, color: kTextMuted, letterSpacing: 1.2)),
-                  const SizedBox(height: 6),
-                  Text(formatAngka(bmi, desimal: 1), style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold, color: _warnaKategori(bmi))),
-                  const SizedBox(height: 6),
-                  Text(_kategoriBmi(bmi), style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: _warnaKategori(bmi))),
+                  const Text('YOUR BMI', style: TextStyle(fontSize: 12, color: kTextMuted, letterSpacing: 2, fontWeight: FontWeight.w700)),
+                  const SizedBox(height: 12),
+                  Text(formatAngka(bmi, desimal: 1), style: const TextStyle(fontSize: 56, fontWeight: FontWeight.w900, color: kPrimaryColor)),
+                  const SizedBox(height: 8),
+                  Text(_kategoriBmi(bmi), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Colors.white, letterSpacing: 1)),
                 ],
               ),
-            ),
-            const SizedBox(height: 12),
-            const Text(
-              'Kategori: <18.5 Kurus, 18.5-24.9 Normal, 25-29.9 Gemuk, >=30 Obesitas',
-              style: TextStyle(fontSize: 11, color: kTextMuted),
             ),
           ],
         ],
@@ -202,11 +204,11 @@ class _KalkulatorKaloriState extends State<_KalkulatorKalori> {
   double? _tdee;
 
   static const Map<String, double> _pilihanAktivitas = {
-    'Jarang olahraga': 1.2,
+    'Sangat jarang': 1.2,
     'Ringan (1-3x/minggu)': 1.375,
     'Sedang (3-5x/minggu)': 1.55,
     'Berat (6-7x/minggu)': 1.725,
-    'Sangat berat (2x/hari)': 1.9,
+    'Ekstrim (2x/hari)': 1.9,
   };
 
   @override
@@ -224,14 +226,7 @@ class _KalkulatorKaloriState extends State<_KalkulatorKalori> {
 
     if (berat == null || tinggi == null || usia == null) {
       setState(() {
-        _errorMessage = 'Isi berat (kg), tinggi (cm), dan usia (tahun) dengan angka yang valid.';
-        _bmr = null;
-      });
-      return;
-    }
-    if (berat <= 0 || tinggi <= 0 || usia <= 0) {
-      setState(() {
-        _errorMessage = 'Berat, tinggi, dan usia harus lebih dari 0.';
+        _errorMessage = 'Input tidak valid.';
         _bmr = null;
       });
       return;
@@ -254,95 +249,99 @@ class _KalkulatorKaloriState extends State<_KalkulatorKalori> {
   @override
   Widget build(BuildContext context) {
     final double? tdee = _tdee;
-    final double? bmr = _bmr;
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Text('Jenis kelamin', style: TextStyle(fontSize: 13, color: kTextMuted)),
-          const SizedBox(height: 6),
+          const Text('JENIS KELAMIN', style: TextStyle(fontSize: 11, color: kTextMuted, fontWeight: FontWeight.bold, letterSpacing: 1)),
+          const SizedBox(height: 8),
           Row(
             children: [
               Expanded(
-                child: RadioListTile<String>(
-                  contentPadding: EdgeInsets.zero,
-                  dense: true,
-                  title: const Text('Pria', style: TextStyle(fontSize: 13)),
-                  value: 'Pria',
-                  // ignore: deprecated_member_use
-                  groupValue: _jenisKelamin,
-                  // ignore: deprecated_member_use
-                  onChanged: (v) => setState(() => _jenisKelamin = v ?? 'Pria'),
+                child: ChoiceChip(
+                  label: const Text('PRIA'),
+                  selected: _jenisKelamin == 'Pria',
+                  onSelected: (s) => setState(() => _jenisKelamin = 'Pria'),
+                  selectedColor: kPrimaryColor,
+                  labelStyle: TextStyle(color: _jenisKelamin == 'Pria' ? Colors.black : Colors.white, fontWeight: FontWeight.bold),
                 ),
               ),
+              const SizedBox(width: 12),
               Expanded(
-                child: RadioListTile<String>(
-                  contentPadding: EdgeInsets.zero,
-                  dense: true,
-                  title: const Text('Wanita', style: TextStyle(fontSize: 13)),
-                  value: 'Wanita',
-                  // ignore: deprecated_member_use
-                  groupValue: _jenisKelamin,
-                  // ignore: deprecated_member_use
-                  onChanged: (v) => setState(() => _jenisKelamin = v ?? 'Pria'),
+                child: ChoiceChip(
+                  label: const Text('WANITA'),
+                  selected: _jenisKelamin == 'Wanita',
+                  onSelected: (s) => setState(() => _jenisKelamin = 'Wanita'),
+                  selectedColor: kPrimaryColor,
+                  labelStyle: TextStyle(color: _jenisKelamin == 'Wanita' ? Colors.black : Colors.white, fontWeight: FontWeight.bold),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 24),
           TextField(
             controller: _beratController,
+            style: const TextStyle(color: Colors.white),
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            decoration: buildInputDecoration('Berat badan (kg)', prefixIcon: const Icon(Icons.monitor_weight)),
+            decoration: buildInputDecoration('Berat (kg)', prefixIcon: const Icon(Icons.monitor_weight_outlined)),
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 20),
           TextField(
             controller: _tinggiController,
+            style: const TextStyle(color: Colors.white),
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            decoration: buildInputDecoration('Tinggi badan (cm)', prefixIcon: const Icon(Icons.height)),
+            decoration: buildInputDecoration('Tinggi (cm)', prefixIcon: const Icon(Icons.height_rounded)),
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 20),
           TextField(
             controller: _usiaController,
+            style: const TextStyle(color: Colors.white),
             keyboardType: TextInputType.number,
-            decoration: buildInputDecoration('Usia (tahun)', prefixIcon: const Icon(Icons.cake)),
+            decoration: buildInputDecoration('Usia', prefixIcon: const Icon(Icons.cake_outlined)),
           ),
-          const SizedBox(height: 14),
-          const Text('Tingkat aktivitas', style: TextStyle(fontSize: 13, color: kTextMuted)),
-          const SizedBox(height: 6),
+          const SizedBox(height: 24),
+          const Text('AKTIVITAS', style: TextStyle(fontSize: 11, color: kTextMuted, fontWeight: FontWeight.bold, letterSpacing: 1)),
+          const SizedBox(height: 8),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            decoration: BoxDecoration(
+              color: kSurfaceColor,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: Colors.white10),
+            ),
             child: DropdownButtonHideUnderline(
               child: DropdownButton<double>(
                 value: _faktorAktivitas,
+                dropdownColor: kSurfaceColor,
                 isExpanded: true,
                 items: _pilihanAktivitas.entries
-                    .map((e) => DropdownMenuItem<double>(value: e.value, child: Text(e.key, style: const TextStyle(fontSize: 13))))
+                    .map((e) => DropdownMenuItem<double>(
+                          value: e.value,
+                          child: Text(e.key, style: const TextStyle(fontSize: 14, color: Colors.white)),
+                        ))
                     .toList(),
                 onChanged: (v) => setState(() => _faktorAktivitas = v ?? 1.2),
               ),
             ),
           ),
           if (_errorMessage != null) ...[
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
             ErrorBox(message: _errorMessage!),
           ],
-          const SizedBox(height: 18),
+          const SizedBox(height: 32),
           ElevatedButton(
             onPressed: _hitungKalori,
             style: kPrimaryButtonStyle,
-            child: const Text('Hitung Kebutuhan Kalori', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+            child: const Text('HITUNG KALORI'),
           ),
-          if (tdee != null && bmr != null) ...[
-            const SizedBox(height: 24),
-            InfoCard(label: 'BMR (kalori istirahat/basal per hari)', value: '${formatAngka(bmr, desimal: 0)} kkal'),
+          if (tdee != null) ...[
+            const SizedBox(height: 32),
             InfoCard(
-              label: 'Kebutuhan kalori harian (TDEE)',
-              value: '${formatAngka(tdee, desimal: 0)} kkal',
-              color: kSuccessColor,
+              label: 'KEBUTUHAN KALORI HARIAN',
+              value: '${formatAngka(tdee, desimal: 0)} KKAL',
+              color: kPrimaryColor,
             ),
           ],
         ],

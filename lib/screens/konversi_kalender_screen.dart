@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import '../data/app_data.dart';
 import '../widgets/shared_widgets.dart';
 
-const List<String> _namaHari = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
-const List<String> _namaPasaran = ['Legi', 'Pahing', 'Pon', 'Wage', 'Kliwon'];
+const List<String> _namaHari = ['SENIN', 'SELASA', 'RABU', 'KAMIS', 'JUMAT', 'SABTU', 'MINGGU'];
+const List<String> _namaPasaran = ['LEGI', 'PAHING', 'PON', 'WAGE', 'KLIWON'];
 final DateTime _tanggalAcuanPasaran = DateTime(1945, 8, 17); // Jumat Legi
 
 class KonversiKalenderScreen extends StatefulWidget {
@@ -19,7 +19,8 @@ class _KonversiKalenderScreenState extends State<KonversiKalenderScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: buildAppBar('Konversi Kalender'),
+      backgroundColor: kBackgroundColor,
+      appBar: buildAppBar('CALENDAR'),
       body: SafeArea(
         child: Column(
           children: [
@@ -27,9 +28,9 @@ class _KonversiKalenderScreenState extends State<KonversiKalenderScreen> {
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
               child: Row(
                 children: [
-                  Expanded(child: _TombolTab(label: 'Weton Jawa', aktif: _tabAktif == 0, onTap: () => setState(() => _tabAktif = 0))),
-                  const SizedBox(width: 10),
-                  Expanded(child: _TombolTab(label: 'Saka Bali', aktif: _tabAktif == 1, onTap: () => setState(() => _tabAktif = 1))),
+                  Expanded(child: _TombolTab(label: 'WETON', aktif: _tabAktif == 0, onTap: () => setState(() => _tabAktif = 0))),
+                  const SizedBox(width: 12),
+                  Expanded(child: _TombolTab(label: 'SAKA', aktif: _tabAktif == 1, onTap: () => setState(() => _tabAktif = 1))),
                 ],
               ),
             ),
@@ -52,14 +53,24 @@ class _TombolTab extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(10),
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        decoration: BoxDecoration(color: aktif ? kPrimaryColor : Colors.white, borderRadius: BorderRadius.circular(10)),
+      borderRadius: BorderRadius.circular(16),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(vertical: 14),
+        decoration: BoxDecoration(
+          color: aktif ? kPrimaryColor : kSurfaceColor,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: aktif ? kPrimaryColor : Colors.white10),
+        ),
         child: Text(
           label,
           textAlign: TextAlign.center,
-          style: TextStyle(color: aktif ? Colors.white : kTextMuted, fontWeight: FontWeight.w600, fontSize: 13),
+          style: TextStyle(
+            color: aktif ? Colors.black : kTextMuted,
+            fontWeight: FontWeight.w900,
+            fontSize: 12,
+            letterSpacing: 1.5,
+          ),
         ),
       ),
     );
@@ -84,6 +95,10 @@ class _KonversiWetonState extends State<_KonversiWeton> {
       initialDate: _tanggalDipilih,
       firstDate: DateTime(1900),
       lastDate: DateTime(2100),
+      builder: (context, child) => Theme(
+        data: Theme.of(context).copyWith(colorScheme: const ColorScheme.dark(primary: kPrimaryColor, onPrimary: Colors.black, surface: kSurfaceColor)),
+        child: child!,
+      ),
     );
     if (hasil != null) {
       setState(() {
@@ -96,9 +111,8 @@ class _KonversiWetonState extends State<_KonversiWeton> {
 
   void _hitungWeton() {
     final String hari = _namaHari[_tanggalDipilih.weekday - 1];
-
     final int selisihHari = _tanggalDipilih.difference(_tanggalAcuanPasaran).inDays;
-    final int indexPasaran = selisihHari % 5;
+    final int indexPasaran = (selisihHari % 5).abs();
     final String pasaran = _namaPasaran[indexPasaran];
 
     setState(() {
@@ -113,51 +127,53 @@ class _KonversiWetonState extends State<_KonversiWeton> {
     final String? pasaran = _pasaran;
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Text('Pilih tanggal', style: TextStyle(fontSize: 13, color: kTextMuted)),
+          const Text('SELECT DATE', style: TextStyle(fontSize: 11, color: kTextMuted, fontWeight: FontWeight.bold, letterSpacing: 1)),
           const SizedBox(height: 8),
           InkWell(
             onTap: _pilihTanggal,
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(16),
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(color: kSurfaceColor, borderRadius: BorderRadius.circular(16), border: Border.all(color: Colors.white10)),
               child: Row(
                 children: [
-                  const Icon(Icons.calendar_today, size: 18, color: kTextMuted),
-                  const SizedBox(width: 12),
-                  Text('${_tanggalDipilih.day}/${_tanggalDipilih.month}/${_tanggalDipilih.year}'),
+                  const Icon(Icons.calendar_today_rounded, size: 20, color: kPrimaryColor),
+                  const SizedBox(width: 16),
+                  Text(
+                    '${_tanggalDipilih.day}/${_tanggalDipilih.month}/${_tanggalDipilih.year}',
+                    style: const TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold),
+                  ),
                 ],
               ),
             ),
           ),
-          const SizedBox(height: 18),
+          const SizedBox(height: 32),
           ElevatedButton(
             onPressed: _hitungWeton,
             style: kPrimaryButtonStyle,
-            child: const Text('Cari Weton', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+            child: const Text('FIND WETON'),
           ),
           if (hari != null && pasaran != null) ...[
-            const SizedBox(height: 24),
+            const SizedBox(height: 40),
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 24),
-              decoration: BoxDecoration(color: kPrimaryColor, borderRadius: BorderRadius.circular(18)),
+              padding: const EdgeInsets.symmetric(vertical: 32),
+              decoration: BoxDecoration(
+                color: kSurfaceColor,
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(color: kPrimaryColor.withValues(alpha: 0.3)),
+              ),
               child: Column(
                 children: [
-                  const Text('WETON', style: TextStyle(fontSize: 12, color: Colors.white70, letterSpacing: 1.2)),
-                  const SizedBox(height: 8),
-                  Text('$hari $pasaran', style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Colors.white)),
+                  const Text('JAVA WETON', style: TextStyle(fontSize: 12, color: kTextMuted, letterSpacing: 2, fontWeight: FontWeight.w700)),
+                  const SizedBox(height: 16),
+                  Text('$hari $pasaran', style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: kPrimaryColor)),
                 ],
               ),
-            ),
-            const SizedBox(height: 10),
-            const Text(
-              'Pasaran dihitung dari acuan 17 Agustus 1945 (Jumat Legi).',
-              style: TextStyle(fontSize: 11, color: kTextMuted),
             ),
           ],
         ],
@@ -166,9 +182,6 @@ class _KonversiWetonState extends State<_KonversiWeton> {
   }
 }
 
-// -----------------------------------------------------------------------
-// KONVERSI TAHUN SAKA BALI (pendekatan sederhana)
-// -----------------------------------------------------------------------
 class _KonversiSaka extends StatefulWidget {
   const _KonversiSaka();
 
@@ -186,6 +199,10 @@ class _KonversiSakaState extends State<_KonversiSaka> {
       initialDate: _tanggalDipilih,
       firstDate: DateTime(1900),
       lastDate: DateTime(2100),
+      builder: (context, child) => Theme(
+        data: Theme.of(context).copyWith(colorScheme: const ColorScheme.dark(primary: kPrimaryColor, onPrimary: Colors.black, surface: kSurfaceColor)),
+        child: child!,
+      ),
     );
     if (hasil != null) {
       setState(() {
@@ -196,65 +213,67 @@ class _KonversiSakaState extends State<_KonversiSaka> {
   }
 
   void _hitungSaka() {
-    setState(() {
-      _tahunSaka = _tanggalDipilih.year - 78;
-    });
+    setState(() => _tahunSaka = _tanggalDipilih.year - 78);
   }
 
   @override
   Widget build(BuildContext context) {
     final int? tahunSaka = _tahunSaka;
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(color: kAccentColor.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10)),
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(color: kPrimaryColor.withValues(alpha: 0.05), borderRadius: BorderRadius.circular(20), border: Border.all(color: kPrimaryColor.withValues(alpha: 0.1))),
             child: const Text(
-              'Catatan: ini hanya konversi TAHUN Saka (Masehi - 78), pendekatan '
-              'yang umum dipakai. Kalender Saka Bali sesungguhnya memakai sistem '
-              'wuku & pawukon yang jauh lebih kompleks dan tidak dihitung penuh '
-              'di sini.',
-              style: TextStyle(fontSize: 12, color: kTextMuted),
+              'NOTE: This conversion uses the standard Masehi - 78 formula for the Balinese Saka year.',
+              style: TextStyle(fontSize: 12, color: kTextMuted, height: 1.5),
             ),
           ),
-          const SizedBox(height: 16),
-          const Text('Pilih tanggal', style: TextStyle(fontSize: 13, color: kTextMuted)),
+          const SizedBox(height: 32),
+          const Text('SELECT DATE', style: TextStyle(fontSize: 11, color: kTextMuted, fontWeight: FontWeight.bold, letterSpacing: 1)),
           const SizedBox(height: 8),
           InkWell(
             onTap: _pilihTanggal,
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(16),
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(color: kSurfaceColor, borderRadius: BorderRadius.circular(16), border: Border.all(color: Colors.white10)),
               child: Row(
                 children: [
-                  const Icon(Icons.calendar_today, size: 18, color: kTextMuted),
-                  const SizedBox(width: 12),
-                  Text('${_tanggalDipilih.day}/${_tanggalDipilih.month}/${_tanggalDipilih.year}'),
+                  const Icon(Icons.calendar_today_rounded, size: 20, color: kPrimaryColor),
+                  const SizedBox(width: 16),
+                  Text(
+                    '${_tanggalDipilih.day}/${_tanggalDipilih.month}/${_tanggalDipilih.year}',
+                    style: const TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold),
+                  ),
                 ],
               ),
             ),
           ),
-          const SizedBox(height: 18),
+          const SizedBox(height: 32),
           ElevatedButton(
             onPressed: _hitungSaka,
             style: kPrimaryButtonStyle,
-            child: const Text('Konversi ke Tahun Saka', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+            child: const Text('CONVERT TO SAKA'),
           ),
           if (tahunSaka != null) ...[
-            const SizedBox(height: 24),
+            const SizedBox(height: 40),
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 24),
-              decoration: BoxDecoration(color: kPrimaryColor, borderRadius: BorderRadius.circular(18)),
+              padding: const EdgeInsets.symmetric(vertical: 32),
+              decoration: BoxDecoration(
+                color: kSurfaceColor,
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(color: kPrimaryColor.withValues(alpha: 0.3)),
+              ),
               child: Column(
                 children: [
-                  const Text('TAHUN SAKA', style: TextStyle(fontSize: 12, color: Colors.white70, letterSpacing: 1.2)),
-                  const SizedBox(height: 8),
-                  Text('$tahunSaka', style: const TextStyle(fontSize: 34, fontWeight: FontWeight.bold, color: Colors.white)),
+                  const Text('SAKA YEAR', style: TextStyle(fontSize: 12, color: kTextMuted, letterSpacing: 2, fontWeight: FontWeight.w700)),
+                  const SizedBox(height: 16),
+                  Text('$tahunSaka', style: const TextStyle(fontSize: 48, fontWeight: FontWeight.w900, color: kPrimaryColor)),
                 ],
               ),
             ),
