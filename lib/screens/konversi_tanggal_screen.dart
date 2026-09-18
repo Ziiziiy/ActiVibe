@@ -27,7 +27,7 @@ class _KonversiTanggalScreenState extends State<KonversiTanggalScreen> {
                 children: [
                   Expanded(child: _TombolTab(label: 'HIJRIAH', aktif: _tabAktif == 0, onTap: () => setState(() => _tabAktif = 0))),
                   const SizedBox(width: 12),
-                  Expanded(child: _TombolTab(label: 'AGE', aktif: _tabAktif == 1, onTap: () => setState(() => _tabAktif = 1))),
+                  Expanded(child: _TombolTab(label: 'UMUR', aktif: _tabAktif == 1, onTap: () => setState(() => _tabAktif = 1))),
                 ],
               ),
             ),
@@ -146,7 +146,7 @@ class _KonversiHijriahState extends State<_KonversiHijriah> {
           ElevatedButton(
             onPressed: _konversi,
             style: kPrimaryButtonStyle,
-            child: const Text('CONVERT TO HIJRIAH'),
+            child: const Text('UBAH KE HIJRIAH'),
           ),
           if (hijriah != null) ...[
             const SizedBox(height: 40),
@@ -241,6 +241,9 @@ class _KonversiUmurState extends State<_KonversiUmur> {
         'bulan': bulan,
         'hari': hari,
         'totalHari': selisih.inDays,
+        'totalJam': selisih.inHours,
+        'totalMenit': selisih.inMinutes,
+        'totalDetik': selisih.inSeconds,
       };
     });
   }
@@ -277,7 +280,7 @@ class _KonversiUmurState extends State<_KonversiUmur> {
           ElevatedButton(
             onPressed: _hitungUmur,
             style: kPrimaryButtonStyle,
-            child: const Text('CALCULATE AGE'),
+            child: const Text('HITUNG UMUR'),
           ),
           if (umur != null) ...[
             const SizedBox(height: 40),
@@ -291,7 +294,7 @@ class _KonversiUmurState extends State<_KonversiUmur> {
               ),
               child: Column(
                 children: [
-                  const Text('CURRENT AGE', style: TextStyle(fontSize: 12, color: kTextMuted, letterSpacing: 2, fontWeight: FontWeight.w700)),
+                  const Text('UMUR SEKARANG', style: TextStyle(fontSize: 12, color: kTextMuted, letterSpacing: 2, fontWeight: FontWeight.w700)),
                   const SizedBox(height: 12),
                   Text(
                     '${umur['tahun']}Y ${umur['bulan']}M ${umur['hari']}D',
@@ -302,7 +305,10 @@ class _KonversiUmurState extends State<_KonversiUmur> {
               ),
             ),
             const SizedBox(height: 20),
-            InfoCard(label: 'TOTAL DAYS LIVED', value: '${umur['totalHari']} DAYS'),
+            InfoCard(label: 'Total hari', value: '${umur['totalHari']} hari'),
+            InfoCard(label: 'Total jam', value: '${umur['totalJam']} jam'),
+            InfoCard(label: 'Total menit', value: '${umur['totalMenit']} menit'),
+            InfoCard(label: 'Total detik', value: '${umur['totalDetik']} detik'),
           ],
         ],
       ),

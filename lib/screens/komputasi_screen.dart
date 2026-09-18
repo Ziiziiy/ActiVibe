@@ -156,7 +156,7 @@ class _KalkulatorBmiState extends State<_KalkulatorBmi> {
           ElevatedButton(
             onPressed: _hitungBmi,
             style: kPrimaryButtonStyle,
-            child: const Text('CALCULATE BMI'),
+            child: const Text('HITUNG BMI'),
           ),
           if (bmi != null) ...[
             const SizedBox(height: 40),
