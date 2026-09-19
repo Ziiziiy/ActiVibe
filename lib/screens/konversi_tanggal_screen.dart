@@ -17,7 +17,7 @@ class _KonversiTanggalScreenState extends State<KonversiTanggalScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: kBackgroundColor,
-      appBar: buildAppBar('CONVERSION'),
+      appBar: buildAppBar('KONVERSI'),
       body: SafeArea(
         child: Column(
           children: [
@@ -122,7 +122,7 @@ class _KonversiHijriahState extends State<_KonversiHijriah> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Text('GREGORIAN DATE', style: TextStyle(fontSize: 11, color: kTextMuted, fontWeight: FontWeight.bold, letterSpacing: 1)),
+          const Text('Masukan Tanggal', style: TextStyle(fontSize: 11, color: kTextMuted, fontWeight: FontWeight.bold, letterSpacing: 1)),
           const SizedBox(height: 8),
           InkWell(
             onTap: _pilihTanggal,
@@ -256,7 +256,7 @@ class _KonversiUmurState extends State<_KonversiUmur> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Text('BIRTH DATE', style: TextStyle(fontSize: 11, color: kTextMuted, fontWeight: FontWeight.bold, letterSpacing: 1)),
+          const Text('Masukan Tanggal Lahir', style: TextStyle(fontSize: 11, color: kTextMuted, fontWeight: FontWeight.bold, letterSpacing: 1)),
           const SizedBox(height: 8),
           InkWell(
             onTap: _pilihTanggal,
