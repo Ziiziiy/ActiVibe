@@ -3,64 +3,101 @@ import 'package:flutter/material.dart';
 import '../data/app_data.dart';
 import '../widgets/shared_widgets.dart';
 
+/// Menampilkan stopwatch, kontrol waktu, dan daftar durasi lap.
 class StopwatchScreen extends StatefulWidget {
+  /// Membuat halaman stopwatch.
   const StopwatchScreen({super.key});
 
+  /// Membuat state yang menyimpan waktu dan status stopwatch.
   @override
   State<StopwatchScreen> createState() => _StopwatchScreenState();
 }
 
+/// Mengelola waktu berjalan, jeda, reset, dan pencatatan durasi lap.
 class _StopwatchScreenState extends State<StopwatchScreen> {
   final Stopwatch _stopwatch = Stopwatch();
+  Duration _elapsed = Duration.zero;
+  Duration _lastLap = Duration.zero;
+  bool _isRunning = false;
   Timer? _timer;
   final List<Duration> _daftarLap = [];
 
+  /// Menghentikan timer ketika layar dilepas agar tidak terjadi kebocoran timer.
   @override
   void dispose() {
     _timer?.cancel();
     super.dispose();
   }
 
-  void _mulaiAtauJeda() {
-    if (_stopwatch.isRunning) {
-      _stopwatch.stop();
-      _timer?.cancel();
-    } else {
-      _stopwatch.start();
-      _timer = Timer.periodic(const Duration(milliseconds: 30), (timer) {
-        setState(() {});
+  /// Memulai stopwatch jika berhenti dan mengabaikan permintaan start ganda.
+  void _mulaiTimer() {
+    if (_isRunning) return;
+
+    _stopwatch.start();
+    _timer = Timer.periodic(const Duration(milliseconds: 10), (_) {
+      setState(() {
+        _elapsed = _stopwatch.elapsed;
       });
-    }
-    setState(() {});
+    });
+
+    setState(() {
+      _isRunning = true;
+    });
   }
 
-  void _reset() {
+  /// Menghentikan timer tanpa menghapus waktu yang sudah tercatat.
+  void _jedaTimer() {
+    _stopwatch.stop();
     _timer?.cancel();
-    _stopwatch.reset();
+    _timer = null;
+
     setState(() {
+      _elapsed = _stopwatch.elapsed;
+      _isRunning = false;
+    });
+  }
+
+  /// Mengembalikan waktu dan seluruh daftar lap ke kondisi awal.
+  void _reset() {
+    _jedaTimer();
+    _stopwatch.reset();
+
+    setState(() {
+      _elapsed = Duration.zero;
+      _lastLap = Duration.zero;
       _daftarLap.clear();
     });
   }
 
+  /// Menyimpan selisih waktu sejak lap terakhir sebagai durasi lap baru.
   void _catatLap() {
+    if (_elapsed == _lastLap) return;
+
     setState(() {
-      _daftarLap.insert(0, _stopwatch.elapsed);
+      _daftarLap.insert(0, _elapsed - _lastLap);
+      _lastLap = _elapsed;
     });
   }
 
+  /// Memformat durasi menjadi jam, menit, detik, dan sentidetik.
   String _formatDurasi(Duration d) {
-    String duaDigit(int n) => n.toString().padLeft(2, '0');
-    String tigaDigit(int n) => n.toString().padLeft(3, '0');
-    final String jam = duaDigit(d.inHours);
-    final String menit = duaDigit(d.inMinutes.remainder(60));
-    final String detik = duaDigit(d.inSeconds.remainder(60));
-    final String ms = tigaDigit(d.inMilliseconds.remainder(1000) ~/ 10);
-    return '$jam:$menit:$detik.$ms';
+    final int totalMilidetik = d.inMilliseconds;
+    final String menit = ((totalMilidetik ~/ 60000) % 60).toString().padLeft(2, '0');
+    final String detik = ((totalMilidetik ~/ 1000) % 60).toString().padLeft(2, '0');
+    final String sentidetik = ((totalMilidetik % 1000) ~/ 10).toString().padLeft(2, '0');
+
+    if (totalMilidetik < 60 * 60 * 1000) {
+      return '$menit:$detik,$sentidetik';
+    }
+
+    final String jam = (totalMilidetik ~/ (60 * 60 * 1000)).toString().padLeft(2, '0');
+    return '$jam:$menit:$detik,$sentidetik';
   }
 
+  /// Membangun tampilan stopwatch tanpa mengubah susunan kontrol yang ada.
   @override
   Widget build(BuildContext context) {
-    final bool berjalan = _stopwatch.isRunning;
+    final bool berjalan = _isRunning;
 
     return Scaffold(
       backgroundColor: kBackgroundColor,
@@ -73,7 +110,7 @@ class _StopwatchScreenState extends State<StopwatchScreen> {
             Container(
               padding: const EdgeInsets.symmetric(vertical: 20),
               child: Text(
-                _formatDurasi(_stopwatch.elapsed),
+                _formatDurasi(_elapsed),
                 style: const TextStyle(
                   fontSize: 52,
                   fontWeight: FontWeight.w900,
@@ -89,7 +126,7 @@ class _StopwatchScreenState extends State<StopwatchScreen> {
               children: [
                 // Start/Pause Button
                 _ControlCircleButton(
-                  onTap: _mulaiAtauJeda,
+                  onTap: berjalan ? _jedaTimer : _mulaiTimer,
                   icon: berjalan ? Icons.pause_rounded : Icons.play_arrow_rounded,
                   color: berjalan ? kWarningColor : kPrimaryColor,
                   isFilled: true,
@@ -159,8 +196,10 @@ class _ControlCircleButton extends StatelessWidget {
   final Color color;
   final bool isFilled;
 
+  /// Membuat tombol kontrol berbentuk lingkaran.
   const _ControlCircleButton({this.onTap, required this.icon, required this.color, required this.isFilled});
 
+  /// Menggambar tombol dengan gaya isi atau outline sesuai konfigurasi.
   @override
   Widget build(BuildContext context) {
     return InkWell(
