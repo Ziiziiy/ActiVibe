@@ -13,8 +13,8 @@ String _namaPengguna() {
 
 String _formatTanggal(DateTime tanggal) {
   const List<String> namaBulan = [
-    'JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN',
-    'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC',
+    'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
+    'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des',
   ];
   return '${tanggal.day} ${namaBulan[tanggal.month - 1]} ${tanggal.year}';
 }
@@ -36,48 +36,106 @@ class CrudOlahragaScreen extends StatefulWidget {
 }
 
 class _CrudOlahragaScreenState extends State<CrudOlahragaScreen> {
-  late final Stream<List<Map<String, dynamic>>> _streamCatatan;
+  List<Map<String, dynamic>> _daftarCatatan = [];
+  bool _sedangMemuat = true;
+  String? _pesanError;
 
   @override
   void initState() {
     super.initState();
-    _streamCatatan = Supabase.instance.client
-        .from(kTabelOlahraga)
-        .stream(primaryKey: ['id'])
-        .order('tanggal', ascending: false);
+    _muatData();
   }
 
-  void _bukaFormTambahEdit({String? id, Map<String, dynamic>? dataAwal}) {
-    showModalBottomSheet(
+  // Fungsi memuat data secara langsung dari Supabase
+  Future<void> _muatData() async {
+    try {
+      final response = await Supabase.instance.client
+          .from(kTabelOlahraga)
+          .select()
+          .order('tanggal', ascending: false);
+
+      if (mounted) {
+        setState(() {
+          _daftarCatatan = List<Map<String, dynamic>>.from(response);
+          _sedangMemuat = false;
+          _pesanError = null;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _pesanError = 'Gagal memuat data: $e';
+          _sedangMemuat = false;
+        });
+      }
+    }
+  }
+
+  // Menunggu kembalian bernilai true dari form untuk langsung me-refresh list
+  Future<void> _bukaFormTambahEdit({String? id, Map<String, dynamic>? dataAwal}) async {
+    final bool? berhasil = await showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => _FormOlahraga(id: id, dataAwal: dataAwal),
     );
+
+    if (berhasil == true) {
+      _muatData();
+    }
   }
 
   void _konfirmasiHapus(String id) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (ctx) => AlertDialog(
         backgroundColor: kSurfaceColor,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text('DELETE LOG?', style: TextStyle(fontWeight: FontWeight.w900, color: Colors.white, letterSpacing: 1)),
-        content: const Text('This exercise record will be permanently removed.', style: TextStyle(color: kTextMuted)),
+        title: const Text(
+          'HAPUS CATATAN?',
+          style: TextStyle(fontWeight: FontWeight.w900, color: Colors.white, letterSpacing: 1),
+        ),
+        content: const Text(
+          'Catatan olahraga ini akan dihapus secara permanen.',
+          style: TextStyle(color: kTextMuted),
+        ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('CANCEL', style: TextStyle(color: kTextMuted))),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('BATAL', style: TextStyle(color: kTextMuted)),
+          ),
           TextButton(
             onPressed: () async {
-              Navigator.pop(context);
+              Navigator.pop(ctx);
               try {
+                // Hapus data dari Supabase
                 await Supabase.instance.client.from(kTabelOlahraga).delete().eq('id', id);
+
+                // Langsung perbarui tampilan seketika tanpa reload layar
+                if (mounted) {
+                  setState(() {
+                    _daftarCatatan.removeWhere((item) => item['id'].toString() == id);
+                  });
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Catatan berhasil dihapus'),
+                      backgroundColor: kPrimaryColor,
+                      duration: Duration(seconds: 2),
+                    ),
+                  );
+                }
               } catch (e) {
                 if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed: $e'), backgroundColor: kWarningColor));
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Gagal menghapus: $e'),
+                      backgroundColor: kWarningColor,
+                    ),
+                  );
                 }
               }
             },
-            child: const Text('DELETE', style: TextStyle(color: kWarningColor, fontWeight: FontWeight.bold)),
+            child: const Text('HAPUS', style: TextStyle(color: kWarningColor, fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -88,106 +146,133 @@ class _CrudOlahragaScreenState extends State<CrudOlahragaScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: kBackgroundColor,
-      appBar: buildAppBar('EXERCISE LOG'),
+      appBar: buildAppBar('CATATAN OLAHRAGA'),
       floatingActionButton: FloatingActionButton(
         backgroundColor: kPrimaryColor,
         elevation: 8,
         onPressed: () => _bukaFormTambahEdit(),
         child: const Icon(Icons.add_rounded, color: Colors.black, size: 32),
       ),
-      body: StreamBuilder<List<Map<String, dynamic>>>(
-        stream: _streamCatatan,
-        builder: (context, snapshot) {
-          if (snapshot.hasError) {
-            return Padding(
-              padding: const EdgeInsets.all(24),
-              child: ErrorBox(message: 'Connection Error: ${snapshot.error}'),
-            );
-          }
-          if (!snapshot.hasData) {
-            return const Center(child: CircularProgressIndicator(color: kPrimaryColor));
-          }
+      body: RefreshIndicator(
+        color: kPrimaryColor,
+        backgroundColor: kSurfaceColor,
+        onRefresh: _muatData,
+        child: _buildBody(),
+      ),
+    );
+  }
 
-          final List<Map<String, dynamic>> daftar = snapshot.data!;
-          if (daftar.isEmpty) {
-            return const Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
+  Widget _buildBody() {
+    if (_sedangMemuat) {
+      return const Center(child: CircularProgressIndicator(color: kPrimaryColor));
+    }
+
+    if (_pesanError != null) {
+      return ListView(
+        padding: const EdgeInsets.all(24),
+        children: [
+          ErrorBox(message: _pesanError!),
+          const SizedBox(height: 16),
+          Center(
+            child: TextButton.icon(
+              onPressed: _muatData,
+              icon: const Icon(Icons.refresh, color: kPrimaryColor),
+              label: const Text('Coba Lagi', style: TextStyle(color: kPrimaryColor)),
+            ),
+          ),
+        ],
+      );
+    }
+
+    if (_daftarCatatan.isEmpty) {
+      return ListView(
+        children: [
+          SizedBox(height: MediaQuery.of(context).size.height * 0.3),
+          const Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.fitness_center_rounded, size: 64, color: Colors.white10),
+                SizedBox(height: 16),
+                Text(
+                  'BELUM ADA CATATAN',
+                  style: TextStyle(color: kTextMuted, letterSpacing: 2, fontWeight: FontWeight.bold, fontSize: 12),
+                ),
+                SizedBox(height: 8),
+                Text(
+                  'Tekan tombol + untuk menambah aktivitas olahraga',
+                  style: TextStyle(color: Colors.white38, fontSize: 12),
+                ),
+              ],
+            ),
+          ),
+        ],
+      );
+    }
+
+    return ListView.builder(
+      padding: const EdgeInsets.fromLTRB(24, 20, 24, 100),
+      itemCount: _daftarCatatan.length,
+      itemBuilder: (context, index) {
+        final Map<String, dynamic> data = _daftarCatatan[index];
+        final String id = data['id'].toString();
+        final DateTime tanggal = _uraiTanggal(data['tanggal']);
+        final String catatanTambahan = (data['catatan'] ?? '').toString();
+
+        return Container(
+          margin: const EdgeInsets.only(bottom: 16),
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: kSurfaceColor,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '${data['jenis_olahraga'] ?? '-'}'.toUpperCase(),
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: Colors.white, letterSpacing: 1),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      '${data['durasi_menit'] ?? 0} MENIT   •   ${data['kalori_terbakar'] ?? 0} KKAL',
+                      style: const TextStyle(fontSize: 12, color: kPrimaryColor, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      _formatTanggal(tanggal),
+                      style: const TextStyle(fontSize: 11, color: kTextMuted, fontWeight: FontWeight.w600),
+                    ),
+                    if (catatanTambahan.isNotEmpty) ...[
+                      const SizedBox(height: 8),
+                      Text(
+                        catatanTambahan,
+                        style: const TextStyle(fontSize: 12, color: Colors.white54, fontStyle: FontStyle.italic),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              Column(
                 children: [
-                  Icon(Icons.fitness_center_rounded, size: 64, color: Colors.white10),
-                  SizedBox(height: 16),
-                  Text(
-                    'NO RECORDS FOUND',
-                    style: TextStyle(color: kTextMuted, letterSpacing: 2, fontWeight: FontWeight.bold, fontSize: 12),
+                  IconButton(
+                    icon: const Icon(Icons.edit_outlined, size: 22, color: kTextMuted),
+                    onPressed: () => _bukaFormTambahEdit(id: id, dataAwal: data),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.delete_outline_rounded, size: 22, color: kWarningColor),
+                    onPressed: () => _konfirmasiHapus(id),
                   ),
                 ],
               ),
-            );
-          }
-
-          return ListView.builder(
-            padding: const EdgeInsets.fromLTRB(24, 20, 24, 100),
-            itemCount: daftar.length,
-            itemBuilder: (context, index) {
-              final Map<String, dynamic> data = daftar[index];
-              final String id = data['id'].toString();
-              final DateTime tanggal = _uraiTanggal(data['tanggal']);
-              final String catatanTambahan = (data['catatan'] ?? '').toString();
-
-              return Container(
-                margin: const EdgeInsets.only(bottom: 16),
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: kSurfaceColor,
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            '${data['jenis_olahraga'] ?? '-'}'.toUpperCase(),
-                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: Colors.white, letterSpacing: 1),
-                          ),
-                          const SizedBox(height: 6),
-                          Text(
-                            '${data['durasi_menit'] ?? 0} MIN  \u2022  ${data['kalori_terbakar'] ?? 0} KCAL',
-                            style: const TextStyle(fontSize: 12, color: kPrimaryColor, fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            _formatTanggal(tanggal),
-                            style: const TextStyle(fontSize: 11, color: kTextMuted, fontWeight: FontWeight.w600),
-                          ),
-                          if (catatanTambahan.isNotEmpty) ...[
-                            const SizedBox(height: 8),
-                            Text(catatanTambahan, style: const TextStyle(fontSize: 12, color: Colors.white54, fontStyle: FontStyle.italic)),
-                          ],
-                        ],
-                      ),
-                    ),
-                    Column(
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.edit_outlined, size: 22, color: kTextMuted),
-                          onPressed: () => _bukaFormTambahEdit(id: id, dataAwal: data),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.delete_outline_rounded, size: 22, color: kWarningColor),
-                          onPressed: () => _konfirmasiHapus(id),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              );
-            },
-          );
-        },
-      ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
@@ -241,7 +326,13 @@ class _FormOlahragaState extends State<_FormOlahraga> {
       firstDate: DateTime(2000),
       lastDate: DateTime(2100),
       builder: (context, child) => Theme(
-        data: Theme.of(context).copyWith(colorScheme: const ColorScheme.dark(primary: kPrimaryColor, onPrimary: Colors.black, surface: kSurfaceColor)),
+        data: Theme.of(context).copyWith(
+          colorScheme: const ColorScheme.dark(
+            primary: kPrimaryColor,
+            onPrimary: Colors.black,
+            surface: kSurfaceColor,
+          ),
+        ),
         child: child!,
       ),
     );
@@ -260,7 +351,7 @@ class _FormOlahragaState extends State<_FormOlahraga> {
     final int? kalori = parseAngkaBulat(_kaloriController.text);
 
     if (jenis.isEmpty || durasi == null || kalori == null) {
-      setState(() => _errorMessage = 'Invalid input values.');
+      setState(() => _errorMessage = 'Mohon lengkapi semua kolom dengan benar.');
       return;
     }
 
@@ -285,12 +376,18 @@ class _FormOlahragaState extends State<_FormOlahraga> {
       } else {
         await tabel.insert(dataDisimpan);
       }
-      if (mounted) Navigator.pop(context);
+      
+      // Mengirim sinyal balik (true) ke halaman utama agar data langsung dimuat ulang
+      if (mounted) {
+        Navigator.pop(context, true);
+      }
     } catch (e) {
-      setState(() {
-        _errorMessage = 'Error: $e';
-        _sedangSimpan = false;
-      });
+      if (mounted) {
+        setState(() {
+          _errorMessage = 'Gagal menyimpan data: $e';
+          _sedangSimpan = false;
+        });
+      }
     }
   }
 
@@ -310,18 +407,33 @@ class _FormOlahragaState extends State<_FormOlahraga> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Center(
-                child: Container(width: 48, height: 5, decoration: BoxDecoration(color: Colors.white12, borderRadius: BorderRadius.circular(10))),
+                child: Container(
+                  width: 48,
+                  height: 5,
+                  decoration: BoxDecoration(
+                    color: Colors.white12,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
               ),
               const SizedBox(height: 32),
               Text(
-                _modeEdit ? 'EDIT ACTIVITY' : 'NEW ACTIVITY',
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Colors.white, letterSpacing: 2),
+                _modeEdit ? 'EDIT AKTIVITAS' : 'TAMBAH AKTIVITAS',
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w900,
+                  color: Colors.white,
+                  letterSpacing: 2,
+                ),
               ),
               const SizedBox(height: 32),
               TextField(
                 controller: _jenisController,
                 style: const TextStyle(color: Colors.white),
-                decoration: buildInputDecoration('Exercise Type', prefixIcon: const Icon(Icons.directions_run_rounded)),
+                decoration: buildInputDecoration(
+                  'Jenis Olahraga (misal: Lari, Renang)',
+                  prefixIcon: const Icon(Icons.directions_run_rounded),
+                ),
               ),
               const SizedBox(height: 20),
               Row(
@@ -331,7 +443,10 @@ class _FormOlahragaState extends State<_FormOlahraga> {
                       controller: _durasiController,
                       style: const TextStyle(color: Colors.white),
                       keyboardType: TextInputType.number,
-                      decoration: buildInputDecoration('Duration (min)', prefixIcon: const Icon(Icons.timer_outlined)),
+                      decoration: buildInputDecoration(
+                        'Durasi (menit)',
+                        prefixIcon: const Icon(Icons.timer_outlined),
+                      ),
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -340,7 +455,10 @@ class _FormOlahragaState extends State<_FormOlahraga> {
                       controller: _kaloriController,
                       style: const TextStyle(color: Colors.white),
                       keyboardType: TextInputType.number,
-                      decoration: buildInputDecoration('Calories', prefixIcon: const Icon(Icons.local_fire_department_outlined)),
+                      decoration: buildInputDecoration(
+                        'Kalori (kkal)',
+                        prefixIcon: const Icon(Icons.local_fire_department_outlined),
+                      ),
                     ),
                   ),
                 ],
@@ -351,12 +469,21 @@ class _FormOlahragaState extends State<_FormOlahraga> {
                 borderRadius: BorderRadius.circular(16),
                 child: Container(
                   padding: const EdgeInsets.all(18),
-                  decoration: BoxDecoration(color: kSurfaceColor, borderRadius: BorderRadius.circular(16), border: Border.all(color: Colors.white10)),
+                  decoration: BoxDecoration(
+                    color: kSurfaceColor,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: Colors.white10),
+                  ),
                   child: Row(
                     children: [
                       const Icon(Icons.calendar_today_rounded, size: 20, color: kPrimaryColor),
                       const SizedBox(width: 16),
-                      Text(_formatTanggal(_tanggalDipilih), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                      Text(
+                        _formatTanggal(_tanggalDipilih),
+                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                      ),
+                      const Spacer(),
+                      const Text('Ubah', style: TextStyle(color: kPrimaryColor, fontSize: 13, fontWeight: FontWeight.bold)),
                     ],
                   ),
                 ),
@@ -366,7 +493,10 @@ class _FormOlahragaState extends State<_FormOlahraga> {
                 controller: _catatanController,
                 maxLines: 2,
                 style: const TextStyle(color: Colors.white),
-                decoration: buildInputDecoration('Notes (Optional)', prefixIcon: const Icon(Icons.notes_rounded)),
+                decoration: buildInputDecoration(
+                  'Catatan (Opsional)',
+                  prefixIcon: const Icon(Icons.notes_rounded),
+                ),
               ),
               if (_errorMessage != null) ...[
                 const SizedBox(height: 20),
@@ -377,8 +507,12 @@ class _FormOlahragaState extends State<_FormOlahraga> {
                 onPressed: _sedangSimpan ? null : _simpan,
                 style: kPrimaryButtonStyle,
                 child: _sedangSimpan
-                    ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 3, color: Colors.black))
-                    : Text(_modeEdit ? 'SAVE CHANGES' : 'CREATE LOG'),
+                    ? const SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(strokeWidth: 3, color: Colors.black),
+                      )
+                    : Text(_modeEdit ? 'SIMPAN PERUBAHAN' : 'TAMBAH CATATAN'),
               ),
             ],
           ),
