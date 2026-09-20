@@ -6,9 +6,9 @@ import '../utils/parsing.dart';
 
 const String kTabelOlahraga = 'catatan_olahraga';
 
-String _namaPengguna() {
-  final String email = Supabase.instance.client.auth.currentUser?.email ?? 'pengguna';
-  return email.split('@').first;
+// ignore: unused_element
+String _emailPengguna() {
+  return Supabase.instance.client.auth.currentUser?.email ?? '';
 }
 
 String _formatTanggal(DateTime tanggal) {
@@ -49,9 +49,11 @@ class _CrudOlahragaScreenState extends State<CrudOlahragaScreen> {
   // Fungsi memuat data secara langsung dari Supabase
   Future<void> _muatData() async {
     try {
+      final String userEmail = _emailPengguna();
       final response = await Supabase.instance.client
           .from(kTabelOlahraga)
           .select()
+          .eq('dibuat_oleh', userEmail)
           .order('tanggal', ascending: false);
 
       if (mounted) {
@@ -366,7 +368,7 @@ class _FormOlahragaState extends State<_FormOlahraga> {
       'kalori_terbakar': kalori,
       'tanggal': _tanggalKeIso(_tanggalDipilih),
       'catatan': _catatanController.text.trim(),
-      'dibuat_oleh': _namaPengguna(),
+      'dibuat_oleh': _emailPengguna(), // Mengirimkan email lengkap
     };
 
     try {
