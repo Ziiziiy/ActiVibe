@@ -29,7 +29,7 @@ flutter_launcher_icons:
   image_path: "assets/images/logo.png" 
   # konfigurasi untuk Android modern (adaptive icon):
   adaptive_icon_background: "#FFFFFF" # warna latar belakang icon
-  adaptive_icon_foreground: "assets/images/logo.png" # ganti dengan path file logo login kamu
+  adaptive_icon_foreground: "assets/images/logo.png"
 
 flutter:
   uses-material-design: true
