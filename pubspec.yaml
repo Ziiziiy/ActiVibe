@@ -21,6 +21,15 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^4.0.0
+  flutter_launcher_icons: ^0.14.1
+
+flutter_launcher_icons:
+  android: true
+  ios: false
+  image_path: "assets/images/logo.png" 
+  # konfigurasi untuk Android modern (adaptive icon):
+  adaptive_icon_background: "#FFFFFF" # warna latar belakang icon
+  adaptive_icon_foreground: "assets/images/logo.png" # ganti dengan path file logo login kamu
 
 flutter:
   uses-material-design: true
