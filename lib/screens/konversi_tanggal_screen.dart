@@ -197,7 +197,7 @@ class _KonversiUmurState extends State<_KonversiUmur> {
     final DateTime? hasil = await showDatePicker(
       context: context,
       initialDate: _tanggalLahir,
-      firstDate: DateTime(1900),
+      firstDate: DateTime(1500),
       lastDate: DateTime.now(),
       builder: (context, child) {
         return Theme(
