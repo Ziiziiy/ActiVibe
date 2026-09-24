@@ -297,7 +297,7 @@ class _KonversiUmurState extends State<_KonversiUmur> {
                   const Text('UMUR SEKARANG', style: TextStyle(fontSize: 12, color: kTextMuted, letterSpacing: 2, fontWeight: FontWeight.w700)),
                   const SizedBox(height: 12),
                   Text(
-                    '${umur['tahun']}Y ${umur['bulan']}M ${umur['hari']}D',
+                    '${umur['tahun']} Tahun ${umur['bulan']} Bulan ${umur['hari']} Hari',
                     textAlign: TextAlign.center,
                     style: const TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: kPrimaryColor),
                   ),
