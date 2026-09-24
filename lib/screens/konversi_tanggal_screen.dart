@@ -198,7 +198,7 @@ class _KonversiUmurState extends State<_KonversiUmur> {
       context: context,
       initialDate: _tanggalLahir,
       firstDate: DateTime(1500),
-      lastDate: DateTime(2500),
+      lastDate: DateTime.now(),
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
