@@ -89,8 +89,8 @@ class _KonversiHijriahState extends State<_KonversiHijriah> {
     final DateTime? hasil = await showDatePicker(
       context: context,
       initialDate: _tanggalDipilih,
-      firstDate: DateTime(1900),
-      lastDate: DateTime(2100),
+      firstDate: DateTime(1500),
+      lastDate: DateTime(2500),
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
